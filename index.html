@@ -11,6 +11,13 @@
 body { font-family: Arial, sans-serif; background: linear-gradient(to right, #ff4d4d, #32cd32); margin:0; padding:20px; position: relative; overflow-x: hidden;}
 h1,h2 { margin:0 0 12px 0; color:#fff; text-shadow:1px 1px 4px #000; }
 .container { max-width:900px; margin:auto; background:white; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); position: relative; z-index:1;}
+  .container-wrapper {
+  position: relative; /* so snowflakes and lights are relative to this */
+  overflow: hidden;   /* hide anything outside container */
+  max-width: 900px;
+  margin: auto;
+  height: auto; /* or fix height if you want */
+}
 input, select, button { padding:8px; margin-bottom:12px; border-radius:6px; border:1px solid #ccc; width:100%; box-sizing:border-box;}
 button { background:#0ea5a4; color:white; border:none; cursor:pointer;}
 button.ghost { background:white; border:1px solid #ccc; color:black;}
@@ -20,8 +27,24 @@ button.ghost { background:white; border:1px solid #ccc; color:black;}
 .seat.taken { background:#111827; color:white; cursor:not-allowed; opacity:0.7;}
 .aisle { width:20px;}
 .summary { background:#fbfdff; padding:12px; border-radius:8px; border:1px solid #eef2ff; margin-top:12px;}
-.modal {position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center;}
-.modal-content {background:white; padding:20px; border-radius:10px; max-width:400px; width:90%;}
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* make it topmost */
+}
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px;
+  width: 90%;
+  z-index: 10000; /* optional but ensures top layer */
+}
+
 
 /* ===== Snowflakes ===== */
 @keyframes snow {
@@ -86,7 +109,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const ROUTE_PRICES = { "Accra": 240, "Kumasi": 140, "Sunyani": 140 };
+const ROUTE_PRICES = { "Accra": 245, "Kumasi": 143, "Sunyani": 143 };
 const seats = {};
 const selected = new Set();
 const preBooked = { "Accra": [], "Kumasi": [], "Sunyani": [] };
@@ -216,7 +239,7 @@ document.getElementById("book").addEventListener("click", ()=> {
                     <p><strong>Route:</strong> ${route}</p>
                     <p><strong>Seats:</strong> ${seatsArr.join(", ")}</p>
                     <p><strong>Total Paid:</strong> ₵${totalPrice}</p>
-                    <p><em>Payment confirmed. Thank you for choosing Elite Transport! <br> Kindly screenshot your ticket and join our WhatsApp Group: https://chat.whatsapp.com/KcnxiUZdSLG5R7B3i97tRk </em></p>
+                    <p><em>Payment confirmed. Thank you for choosing Elite Transport! <br> Kindly screenshot your ticket and join our WhatsApp Group <a href= "https://chat.whatsapp.com/KcnxiUZdSLG5R7B3i97tRk" target="_blank>here</a> </em></p>
                 `;
                 modal.style.display = "flex";
                 selected.clear();
@@ -235,7 +258,8 @@ buildSeats(); refreshSeats(); updateSummary();
 </script>
 </head>
 <body>
-<div class="container">
+<div class="container-wrapper">
+  <div class="container">
   <h1>🎄 Elite Transport — Christmas Break Bus Booking 🎄</h1>
   <img class="logo" src="https://i.ibb.co/Kty8MqP/ELITE-TRANSPORT.png" alt="Elite Transport Logo">
 
@@ -260,8 +284,9 @@ buildSeats(); refreshSeats(); updateSummary();
 
   <div class="summary">
     <p>Seats Selected: <span id="selectedCount">0</span></p>
-    <p>Total: ₵<span id="total">0</span></p>
+    <p>Total(online charges apply): ₵<span id="total">0</span></p>
   </div>
+</div>
 
   <button id="book">Pay & Book Now</button>
 </div>

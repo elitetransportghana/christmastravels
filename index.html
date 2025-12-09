@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Elite Transport — Bus Booking</title>
+<title>Elite Travels — Bus Booking</title>
 <style>
 body { font-family: Arial, sans-serif; background:#f6f7fb; margin:0; padding:20px;}
 h1,h2 { margin:0 0 12px 0; }
@@ -34,17 +34,14 @@ const firebaseConfig = {
   appId: "1:501436168620:web:f62aa5f9e8e6a4310a2209",
   measurementId: "G-26GGV75HV9"
 };
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const ROUTE_PRICES = { "Accra": 240, "Kumasi": 140, "Sunyani": 140 };
 const seats = {};
 const selected = new Set();
-const preBooked = {
-  "Accra": [1,5,10,15],
-  "Kumasi": [2,8,20,33],
-  "Sunyani": [3,6,22,44]
-};
+const preBooked = { "Accra": [], "Kumasi": [], "Sunyani": [] };
 
 const seatmapEl = document.getElementById("seatmap");
 const selectedCountEl = document.getElementById("selectedCount");
@@ -62,19 +59,13 @@ function buildSeats(){
     div.textContent=i;
     div.addEventListener("click", ()=>{
       if(seats[i].status==="taken") return;
-      if(seats[i].status==="selected"){
-        seats[i].status="free"; selected.delete(i);
-      } else {
-        seats[i].status="selected"; selected.add(i);
-      }
+      if(seats[i].status==="selected"){ seats[i].status="free"; selected.delete(i); }
+      else { seats[i].status="selected"; selected.add(i); }
       refreshSeats();
       updateSummary();
     });
     seatmapEl.appendChild(div);
-    if(i%3===0 && i<49){
-      const aisle = document.createElement("div"); aisle.className='aisle';
-      seatmapEl.appendChild(aisle);
-    }
+    if(i%3===0 && i<49){ const aisle = document.createElement("div"); aisle.className='aisle'; seatmapEl.appendChild(aisle); }
   }
 }
 
@@ -85,9 +76,7 @@ async function refreshSeats(){
   const docId = `${route}_${date}`;
   const docRef = doc(db,"bookings",docId);
   const docSnap = await getDoc(docRef);
-  if(docSnap.exists()){
-    booked = booked.concat(docSnap.data().seats || []);
-  }
+  if(docSnap.exists()){ booked = booked.concat(docSnap.data().seats || []); }
   document.querySelectorAll(".seat").forEach(el=>{
     const id = parseInt(el.dataset.id);
     el.classList.remove("selected","taken");
@@ -108,9 +97,7 @@ async function saveBooking(name, phone, route, date, seatsArr){
   const docRef = doc(db,"bookings",docId);
   const docSnap = await getDoc(docRef);
   let currentSeats = [];
-  if(docSnap.exists()){
-    currentSeats = docSnap.data().seats;
-  }
+  if(docSnap.exists()){ currentSeats = docSnap.data().seats; }
   const updatedSeats = [...new Set([...currentSeats, ...seatsArr])];
   await setDoc(docRef, { seats: updatedSeats });
 
@@ -120,12 +107,8 @@ async function saveBooking(name, phone, route, date, seatsArr){
   });
 }
 
-document.getElementById("route").addEventListener("change", ()=>{
-  selected.clear(); refreshSeats(); updateSummary();
-});
-document.getElementById("date").addEventListener("change", ()=>{
-  selected.clear(); refreshSeats(); updateSummary();
-});
+document.getElementById("route").addEventListener("change", ()=>{ selected.clear(); refreshSeats(); updateSummary(); });
+document.getElementById("date").addEventListener("change", ()=>{ selected.clear(); refreshSeats(); updateSummary(); });
 
 document.getElementById("book").addEventListener("click", async ()=>{
   const name = document.getElementById("fullname").value.trim();
@@ -139,19 +122,12 @@ document.getElementById("book").addEventListener("click", async ()=>{
   const amount = seatsArr.length*ROUTE_PRICES[route]*100;
 
   let handler = PaystackPop.setup({
-    key: "pk_test_1a654bb75fe2d39b626912eb42a2631b52bb0d03",
+    key: "pk_test_d1cfdee00c5d5743830737d892e4e86705a4d9cd", // Replace with your Paystack public key
     email: phone+"@example.com",
     amount: amount,
     currency: "GHS",
     ref: 'ET'+Math.floor((Math.random()*1000000000)+1),
-    metadata: {
-      custom_fields:[
-        {display_name:"Full Name", value:name},
-        {display_name:"Phone", value:phone},
-        {display_name:"Route", value:route},
-        {display_name:"Seats", value:seatsArr.join(", ")}
-      ]
-    },
+    metadata: { custom_fields:[{display_name:"Full Name", value:name},{display_name:"Phone", value:phone},{display_name:"Route", value:route},{display_name:"Seats", value:seatsArr.join(", ")}] },
     callback: async function(response){
       await saveBooking(name, phone, route, date, seatsArr);
       const totalPrice = seatsArr.length*ROUTE_PRICES[route];
@@ -163,14 +139,12 @@ document.getElementById("book").addEventListener("click", async ()=>{
         <p><strong>Route:</strong> ${route}</p>
         <p><strong>Seats:</strong> ${seatsArr.join(", ")}</p>
         <p><strong>Total Paid:</strong> ₵${totalPrice}</p>
-        <p><em>Payment confirmed via Paystack. Thank you for choosing Elite Transport!</em></p>
+        <p><em>Payment confirmed via Paystack. Thank you for choosing Elite Travels!</em></p>
       `;
       modal.style.display="flex";
       selected.clear(); await refreshSeats(); updateSummary();
     },
-    onClose:function(){
-      alert("Payment not completed");
-    }
+    onClose:function(){ alert("Payment not completed"); }
   });
   handler.openIframe();
 });
@@ -183,7 +157,7 @@ buildSeats(); refreshSeats(); updateSummary();
 </head>
 <body>
 <div class="container">
-  <h1>Elite Transport — Bus Booking</h1>
+  <h1>Elite Travels — Bus Booking</h1>
   <h2>Passenger Details</h2>
   <input type="text" id="fullname" placeholder="Full Name">
   <input type="text" id="phone" placeholder="Phone Number">
@@ -213,7 +187,7 @@ buildSeats(); refreshSeats(); updateSummary();
 
 <div id="modal" class="modal">
   <div class="modal-content">
-    <h2>Elite Transport — Booking Receipt</h2>
+    <h2>Elite Travels — Booking Receipt</h2>
     <div id="receiptBody"></div>
     <button id="closeModal">Close</button>
   </div>

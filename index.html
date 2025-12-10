@@ -133,12 +133,16 @@ document.getElementById("book").addEventListener("click", ()=>{
     amount: amount,
     currency: "GHS",
     ref: 'ET'+Math.floor(Math.random()*1000000000 + 1),
-    metadata: { custom_fields:[
-      {display_name:"Full Name", value:name},
-      {display_name:"Phone", value:phone},
-      {display_name:"Route", value:route},
-      {display_name:"Seats", value:seatsArr.join(", ")}
-    ] },
+    metadata: {
+  custom_fields: [
+    { display_name: "FullName", value: name },
+    { display_name: "Phone", value: phone },
+    { display_name: "Route", value: route },
+    { display_name: "Seats", value: seatsArr.join(",") },
+    { display_name: "Date", value: date }
+  ]
+}
+
     callback: function(response){
       saveBooking(name, phone, route, date, seatsArr).then(()=>{
         const totalPrice = seatsArr.length * ROUTE_PRICES[route];

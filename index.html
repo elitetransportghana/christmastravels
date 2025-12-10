@@ -142,18 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
     totalEl.textContent = (selected.size*price).toFixed(2);
   }
 
-  async function saveBooking(name, phone, route, date, seatsArr){
-    const docId = `${route}_${date}`;
-    const docRef = doc(db,"bookings",docId);
-    const docSnap = await getDoc(docRef);
-    let currentSeats = [];
-    if(docSnap.exists()){ currentSeats = docSnap.data().seats; }
-    const updatedSeats = [...new Set([...currentSeats, ...seatsArr])];
-    await setDoc(docRef, { seats: updatedSeats });
 
-    const bookingsCol = collection(db,"passengerBookings");
-    await addDoc(bookingsCol,{ name, phone, route, date, seats: seatsArr, timestamp: Timestamp.now(), paid:true });
-  }
 
   document.getElementById("route").addEventListener("change", ()=>{ selected.clear(); refreshSeats(); updateSummary(); });
   document.getElementById("date").addEventListener("change", ()=>{ selected.clear(); refreshSeats(); updateSummary(); });
@@ -186,8 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
       },
       callback: function(response){
-        saveBooking(name, phone, route, date, seatsArr).then(()=>{
-          const totalPrice = seatsArr.length * ROUTE_PRICES[route];
           receiptBody.innerHTML = `
 <p><strong>Passenger:</strong> ${name}</p>
 <p><strong>Phone:</strong> ${phone}</p>

@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Elite Transport — Christmas Break Bus Booking</title>
 <link rel="icon" type="image/png" href="https://i.ibb.co/Kty8MqP/ELITE-TRANSPORT.png">
-
 <style>
 body { font-family: Arial, sans-serif; background: #f6f7fb; margin:0; padding:20px; color:black; }
 h1,h2 { margin:0 0 12px 0; color:black; }
@@ -24,154 +23,6 @@ button.ghost { background:white; border:1px solid #ccc; color:black; }
 .modal-content { background: white; padding: 20px; border-radius: 10px; max-width: 400px; width: 90%; z-index: 10000; }
 .logo { display:block; margin:0 auto 15px auto; width:120px; height:50px; object-fit:contain; }
 </style>
-
-<script src="https://js.paystack.co/v1/inline.js"></script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-
-// ---------- Firebase Setup ----------
-const firebaseConfig = {
-  apiKey: "AIzaSyAemck6mdMNW_sripWUzM8WQjjrmLf69pQ",
-  authDomain: "elite-travels.firebaseapp.com",
-  projectId: "elite-travels",
-  storageBucket: "elite-travels.firebasestorage.app",
-  messagingSenderId: "501436168620",
-  appId: "1:501436168620:web:f62aa5f9e8e6a4310a2209",
-  measurementId: "G-26GGV75HV9"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// ---------- Variables ----------
-const ROUTE_PRICES = { "Accra": 245, "Kumasi": 143, "Sunyani": 143, "Takoradi": 245 };
-const seats = {};
-const selected = new Set();
-const preBooked = { "Accra": [], "Kumasi": [], "Sunyani": [], "Takoradi": [] };
-
-const seatmapEl = document.getElementById("seatmap");
-const selectedCountEl = document.getElementById("selectedCount");
-const totalEl = document.getElementById("total");
-const modal = document.getElementById("modal");
-const receiptBody = document.getElementById("receiptBody");
-
-// ---------- Seat Functions ----------
-function buildSeats(){
-  seatmapEl.innerHTML="";
-  for(let i=1;i<=49;i++){
-    seats[i] = seats[i] || {status:"free"};
-    const div = document.createElement("div");
-    div.className="seat";
-    div.dataset.id=i;
-    div.textContent=i;
-    div.addEventListener("click", ()=>{
-      if(seats[i].status==="taken") return;
-      if(seats[i].status==="selected"){ seats[i].status="free"; selected.delete(i); } 
-      else { seats[i].status="selected"; selected.add(i); }
-      refreshSeats(); updateSummary();
-    });
-    seatmapEl.appendChild(div);
-    if(i%3===0 && i<49){ const aisle=document.createElement('div'); aisle.className='aisle'; seatmapEl.appendChild(aisle); }
-  }
-}
-
-async function refreshSeats(){
-  const route = document.getElementById("route").value;
-  const date = document.getElementById("date").value;
-  let booked = preBooked[route] || [];
-  const docId = `${route}_${date}`;
-  const docRef = doc(db,"bookings",docId);
-  const docSnap = await getDoc(docRef);
-  if(docSnap.exists()){ booked = booked.concat(docSnap.data().seats || []); }
-  document.querySelectorAll(".seat").forEach(el=>{
-    const id = parseInt(el.dataset.id);
-    el.classList.remove("selected","taken");
-    if(selected.has(id)) el.classList.add("selected");
-    if(booked.includes(id)) el.classList.add("taken");
-  });
-}
-
-function updateSummary(){
-  const route = document.getElementById("route").value;
-  const price = ROUTE_PRICES[route];
-  selectedCountEl.textContent = selected.size;
-  totalEl.textContent = (selected.size*price).toFixed(2);
-}
-
-async function saveBooking(name, phone, route, date, seatsArr){
-  const docId = `${route}_${date}`;
-  const docRef = doc(db,"bookings",docId);
-  const docSnap = await getDoc(docRef);
-  let currentSeats = [];
-  if(docSnap.exists()){ currentSeats = docSnap.data().seats; }
-  const updatedSeats = [...new Set([...currentSeats, ...seatsArr])];
-  await setDoc(docRef, { seats: updatedSeats });
-
-  const bookingsCol = collection(db,"passengerBookings");
-  await addDoc(bookingsCol,{ name, phone, route, date, seats: seatsArr, timestamp: Timestamp.now(), paid:true });
-}
-
-// ---------- Event Listeners ----------
-document.getElementById("route").addEventListener("change", ()=>{ selected.clear(); refreshSeats(); updateSummary(); });
-document.getElementById("date").addEventListener("change", ()=>{ selected.clear(); refreshSeats(); updateSummary(); });
-
-document.getElementById("book").addEventListener("click", ()=>{
-  const name = document.getElementById("fullname").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const date = document.getElementById("date").value;
-  const route = document.getElementById("route").value;
-
-  if(!name || !phone){ alert("Enter name and phone number"); return; }
-  if(selected.size === 0){ alert("Select at least one seat"); return; }
-
-  const seatsArr = Array.from(selected);
-  const amount = seatsArr.length * ROUTE_PRICES[route] * 100;
-
-  let handler = PaystackPop.setup({
-    key: "pk_test_d1cfdee00c5d5743830737d892e4e86705a4d9cd",
-    email: phone + "@example.com",
-    amount: amount,
-    currency: "GHS",
-    ref: 'ET'+Math.floor(Math.random()*1000000000 + 1),
-    metadata: {
-  custom_fields: [
-    { display_name: "FullName", value: name },
-    { display_name: "Phone", value: phone },
-    { display_name: "Route", value: route },
-    { display_name: "Seats", value: seatsArr.join(",") },
-    { display_name: "Date", value: date }
-  ]
-}
-
-    callback: function(response){
-      saveBooking(name, phone, route, date, seatsArr).then(()=>{
-        const totalPrice = seatsArr.length * ROUTE_PRICES[route];
-        receiptBody.innerHTML = `
-<p><strong>Passenger:</strong> ${name}</p>
-<p><strong>Phone:</strong> ${phone}</p>
-<p><strong>Boarding:</strong> UDS Campus</p>
-<p><strong>Date:</strong> ${date}</p>
-<p><strong>Route:</strong> ${route}</p>
-<p><strong>Seats:</strong> ${seatsArr.join(", ")}</p>
-<p><strong>Total Paid:</strong> ₵${totalPrice}</p>
-<p><em>Payment confirmed. Thank you for choosing Elite Transport! <br> Kindly screenshot your ticket. Join our WhatsApp Group: 
-<a href="https://chat.whatsapp.com/KcnxiUZdSLG5R7B3i97tRk" target="_blank">Click Here</a></em></p>
-        `;
-        modal.style.display = "flex";
-        selected.clear();
-        refreshSeats();
-        updateSummary();
-      });
-    },
-    onClose: function(){ alert("Payment not completed"); }
-  });
-  handler.openIframe();
-});
-
-document.getElementById("closeModal").addEventListener("click", ()=>{ modal.style.display="none"; });
-
-buildSeats(); refreshSeats(); updateSummary();
-</script>
 </head>
 <body>
 <div class="container-wrapper">
@@ -193,10 +44,10 @@ buildSeats(); refreshSeats(); updateSummary();
 
     <label>Route</label>
     <select id="route">
-      <option value="Accra">Accra — ₵240</option>
-      <option value="Kumasi">Kumasi — ₵140</option>
-      <option value="Sunyani">Sunyani — ₵140</option>
-      <option value="Takoradi">Takoradi — ₵240</option>
+      <option value="Accra">Accra — ₵245</option>
+      <option value="Kumasi">Kumasi — ₵143</option>
+      <option value="Sunyani">Sunyani — ₵143</option>
+      <option value="Takoradi">Takoradi — ₵245</option>
     </select>
 
     <h2>Select Your Seat(s) (1–49)</h2>
@@ -218,5 +69,153 @@ buildSeats(); refreshSeats(); updateSummary();
     <button id="closeModal">Close</button>
   </div>
 </div>
+
+<!-- Scripts moved to end of body -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+  const firebaseConfig = {
+    apiKey: "AIzaSyAemck6mdMNW_sripWUzM8WQjjrmLf69pQ",
+    authDomain: "elite-travels.firebaseapp.com",
+    projectId: "elite-travels",
+    storageBucket: "elite-travels.firebasestorage.app",
+    messagingSenderId: "501436168620",
+    appId: "1:501436168620:web:f62aa5f9e8e6a4310a2209",
+    measurementId: "G-26GGV75HV9"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const ROUTE_PRICES = { "Accra": 245, "Kumasi": 143, "Sunyani": 143, "Takoradi": 245 };
+  const seats = {};
+  const selected = new Set();
+  const preBooked = { "Accra": [], "Kumasi": [], "Sunyani": [], "Takoradi": [] };
+
+  const seatmapEl = document.getElementById("seatmap");
+  const selectedCountEl = document.getElementById("selectedCount");
+  const totalEl = document.getElementById("total");
+  const modal = document.getElementById("modal");
+  const receiptBody = document.getElementById("receiptBody");
+
+  function buildSeats() {
+    seatmapEl.innerHTML="";
+    for(let i=1;i<=49;i++){
+      seats[i] = seats[i] || {status:"free"};
+      const div = document.createElement("div");
+      div.className="seat";
+      div.dataset.id=i;
+      div.textContent=i;
+      div.addEventListener("click", ()=>{
+        if(seats[i].status==="taken") return;
+        if(seats[i].status==="selected"){ seats[i].status="free"; selected.delete(i); } 
+        else { seats[i].status="selected"; selected.add(i); }
+        refreshSeats(); updateSummary();
+      });
+      seatmapEl.appendChild(div);
+      if(i%3===0 && i<49){ const aisle=document.createElement('div'); aisle.className='aisle'; seatmapEl.appendChild(aisle); }
+    }
+  }
+
+  async function refreshSeats(){
+    const route = document.getElementById("route").value;
+    const date = document.getElementById("date").value;
+    let booked = preBooked[route] || [];
+    const docId = `${route}_${date}`;
+    const docRef = doc(db,"bookings",docId);
+    const docSnap = await getDoc(docRef);
+    if(docSnap.exists()){ booked = booked.concat(docSnap.data().seats || []); }
+    document.querySelectorAll(".seat").forEach(el=>{
+      const id = parseInt(el.dataset.id);
+      el.classList.remove("selected","taken");
+      if(selected.has(id)) el.classList.add("selected");
+      if(booked.includes(id)) el.classList.add("taken");
+    });
+  }
+
+  function updateSummary(){
+    const route = document.getElementById("route").value;
+    const price = ROUTE_PRICES[route];
+    selectedCountEl.textContent = selected.size;
+    totalEl.textContent = (selected.size*price).toFixed(2);
+  }
+
+  async function saveBooking(name, phone, route, date, seatsArr){
+    const docId = `${route}_${date}`;
+    const docRef = doc(db,"bookings",docId);
+    const docSnap = await getDoc(docRef);
+    let currentSeats = [];
+    if(docSnap.exists()){ currentSeats = docSnap.data().seats; }
+    const updatedSeats = [...new Set([...currentSeats, ...seatsArr])];
+    await setDoc(docRef, { seats: updatedSeats });
+
+    const bookingsCol = collection(db,"passengerBookings");
+    await addDoc(bookingsCol,{ name, phone, route, date, seats: seatsArr, timestamp: Timestamp.now(), paid:true });
+  }
+
+  document.getElementById("route").addEventListener("change", ()=>{ selected.clear(); refreshSeats(); updateSummary(); });
+  document.getElementById("date").addEventListener("change", ()=>{ selected.clear(); refreshSeats(); updateSummary(); });
+
+  document.getElementById("book").addEventListener("click", ()=>{
+    const name = document.getElementById("fullname").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const date = document.getElementById("date").value;
+    const route = document.getElementById("route").value;
+
+    if(!name || !phone){ alert("Enter name and phone number"); return; }
+    if(selected.size === 0){ alert("Select at least one seat"); return; }
+
+    const seatsArr = Array.from(selected);
+    const amount = seatsArr.length * ROUTE_PRICES[route] * 100;
+
+    let handler = PaystackPop.setup({
+      key: "pk_test_d1cfdee00c5d5743830737d892e4e86705a4d9cd",
+      email: phone + "@example.com",
+      amount: amount,
+      currency: "GHS",
+      ref: 'ET'+Math.floor(Math.random()*1000000000 + 1),
+      metadata: {
+        custom_fields: [
+          { display_name: "Full Name", value: name },
+          { display_name: "Phone", value: phone },
+          { display_name: "Route", value: route },
+          { display_name: "Seats", value: seatsArr.join(", ") },
+          { display_name: "Date", value: date }
+        ]
+      },
+      callback: function(response){
+        saveBooking(name, phone, route, date, seatsArr).then(()=>{
+          const totalPrice = seatsArr.length * ROUTE_PRICES[route];
+          receiptBody.innerHTML = `
+<p><strong>Passenger:</strong> ${name}</p>
+<p><strong>Phone:</strong> ${phone}</p>
+<p><strong>Boarding:</strong> UDS Campus</p>
+<p><strong>Date:</strong> ${date}</p>
+<p><strong>Route:</strong> ${route}</p>
+<p><strong>Seats:</strong> ${seatsArr.join(", ")}</p>
+<p><strong>Total Paid:</strong> ₵${totalPrice}</p>
+<p><em>Payment confirmed. Thank you for choosing Elite Transport! <br> Kindly screenshot your ticket. Join our WhatsApp Group: 
+<a href="https://chat.whatsapp.com/KcnxiUZdSLG5R7B3i97tRk" target="_blank">Click Here</a></em></p>
+          `;
+          modal.style.display = "flex";
+          selected.clear();
+          refreshSeats();
+          updateSummary();
+        });
+      },
+      onClose: function(){ alert("Payment not completed"); }
+    });
+    handler.openIframe();
+  });
+
+  document.getElementById("closeModal").addEventListener("click", ()=>{ modal.style.display="none"; });
+
+  buildSeats(); 
+  refreshSeats(); 
+  updateSummary();
+});
+</script>
 </body>
 </html>

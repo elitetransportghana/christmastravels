@@ -77,7 +77,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // ===== Routes & Prices =====
-const ROUTE_PRICES = { "Accra": 245, "Kumasi": 143, "Sunyani": 143, "Takoradi": 180 };
+const ROUTE_PRICES = { "Accra": 245, "Kumasi": 143, "Sunyani": 143, "Takoradi": 245 };
 const preBooked = { "Accra": [], "Kumasi": [], "Sunyani": [], "Takoradi": [] };
 
 const seats = {};
@@ -245,7 +245,7 @@ buildSeats(); refreshSeats(); updateSummary();
     <option value="Accra">Accra — ₵240</option>
     <option value="Kumasi">Kumasi — ₵140</option>
     <option value="Sunyani">Sunyani — ₵140</option>
-    <option value="Takoradi">Takoradi — ₵180</option>
+    <option value="Takoradi">Takoradi — ₵240</option>
   </select>
 
   <h2>Select Your Seat(s) (1–49)</h2>

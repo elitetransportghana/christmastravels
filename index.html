@@ -142,7 +142,7 @@ document.getElementById("book").addEventListener("click", ()=>{
           const reference = response.reference;
 
           // ---------- Cloudflare Worker Verification ----------
-          fetch("https://your-worker-subdomain.workers.dev", {
+          fetch("https://shy-bonus-fbab.elitetransportghana.workers.dev/", {
               method:"POST",
               headers:{"Content-Type":"application/json"},
               body: JSON.stringify({reference})

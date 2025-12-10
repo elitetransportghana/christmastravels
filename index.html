@@ -7,26 +7,22 @@
 <link rel="icon" type="image/png" href="https://i.ibb.co/Kty8MqP/ELITE-TRANSPORT.png">
 
 <style>
-body { font-family: Arial, sans-serif; background: #f6f7fb; margin: 0; padding: 20px; color: black;}
-h1, h2 { margin: 0 0 12px 0; color: black; }
-.container { max-width:900px; margin:auto; background:white; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); position: relative; z-index:1;}
-.container-wrapper { position: relative; overflow:hidden; max-width:900px; margin:auto; height:auto;}
-input, select, button { padding:8px; margin-bottom:12px; border-radius:6px; border:1px solid #ccc; width:100%; box-sizing:border-box;}
-button { background:#0ea5a4; color:white; border:none; cursor:pointer;}
-button.ghost { background:white; border:1px solid #ccc; color:black;}
-.seatmap { display:grid; grid-template-columns:repeat(4,50px); gap:8px; margin-bottom:12px;}
-.seat { width:50px; height:50px; background:#eef2ff; display:flex; align-items:center; justify-content:center; border-radius:6px; cursor:pointer; user-select:none;}
-.seat.selected { background:#06b6d4; color:white;}
-.seat.taken { background:#111827; color:white; cursor:not-allowed; opacity:0.7;}
-.aisle { width:20px;}
-.summary { background:#fbfdff; padding:12px; border-radius:8px; border:1px solid #eef2ff; margin-top:12px;}
-.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 9999;}
-.modal-content { background: white; padding: 20px; border-radius: 10px; max-width: 400px; width: 90%; z-index: 10000;}
-.logo { display:block; margin:0 auto 15px auto; width:120px; height:50px; object-fit:contain;}
-
-/* Snowflakes */
-@keyframes snow { 0% { transform: translateY(-10px) translateX(0); } 50% { transform: translateY(50vh) translateX(var(--sway)); } 100% { transform: translateY(100vh) translateX(0); } }
-.snowflake { position: absolute; top: -10px; color: white; animation-name: snow; animation-iteration-count: infinite; animation-timing-function: linear; pointer-events:none; }
+body { font-family: Arial, sans-serif; background: #f6f7fb; margin:0; padding:20px; color:black; }
+h1,h2 { margin:0 0 12px 0; color:black; }
+.container { max-width:900px; margin:auto; background:white; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.05); position: relative; z-index:1; }
+.container-wrapper { position: relative; overflow:hidden; max-width:900px; margin:auto; height:auto; }
+input, select, button { padding:8px; margin-bottom:12px; border-radius:6px; border:1px solid #ccc; width:100%; box-sizing:border-box; }
+button { background:#0ea5a4; color:white; border:none; cursor:pointer; }
+button.ghost { background:white; border:1px solid #ccc; color:black; }
+.seatmap { display:grid; grid-template-columns:repeat(4,50px); gap:8px; margin-bottom:12px; }
+.seat { width:50px; height:50px; background:#eef2ff; display:flex; align-items:center; justify-content:center; border-radius:6px; cursor:pointer; user-select:none; }
+.seat.selected { background:#06b6d4; color:white; }
+.seat.taken { background:#111827; color:white; cursor:not-allowed; opacity:0.7; }
+.aisle { width:20px; }
+.summary { background:#fbfdff; padding:12px; border-radius:8px; border:1px solid #eef2ff; margin-top:12px; }
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 9999; }
+.modal-content { background: white; padding: 20px; border-radius: 10px; max-width: 400px; width: 90%; z-index: 10000; }
+.logo { display:block; margin:0 auto 15px auto; width:120px; height:50px; object-fit:contain; }
 </style>
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
@@ -34,6 +30,7 @@ button.ghost { background:white; border:1px solid #ccc; color:black;}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
+// ---------- Firebase Setup ----------
 const firebaseConfig = {
   apiKey: "AIzaSyAemck6mdMNW_sripWUzM8WQjjrmLf69pQ",
   authDomain: "elite-travels.firebaseapp.com",
@@ -46,10 +43,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const ROUTE_PRICES = { "Accra": 245, "Kumasi": 143, "Sunyani": 143 };
+// ---------- Variables ----------
+const ROUTE_PRICES = { "Accra": 245, "Kumasi": 143, "Sunyani": 143, "Takoradi": 245 };
 const seats = {};
 const selected = new Set();
-const preBooked = { "Accra": [], "Kumasi": [], "Sunyani": [] };
+const preBooked = { "Accra": [], "Kumasi": [], "Sunyani": [], "Takoradi": [] };
 
 const seatmapEl = document.getElementById("seatmap");
 const selectedCountEl = document.getElementById("selectedCount");
@@ -57,37 +55,20 @@ const totalEl = document.getElementById("total");
 const modal = document.getElementById("modal");
 const receiptBody = document.getElementById("receiptBody");
 
-// Snowflakes
-for(let i=0;i<50;i++){
-  const snow = document.createElement('div');
-  snow.className='snowflake';
-  snow.textContent='❄';
-  snow.style.left=Math.random()*100+'vw';
-  snow.style.fontSize=(Math.random()*20+10)+'px';
-  snow.style.opacity=Math.random()*0.8+0.2;
-  const fallDuration=Math.random()*10+5;
-  const fallDelay=Math.random()*10;
-  const sway=Math.random()*50-25;
-  snow.style.setProperty('--sway', sway+'px');
-  snow.style.animationDuration=fallDuration+'s';
-  snow.style.animationDelay=fallDelay+'s';
-  document.body.appendChild(snow);
-}
-
-// Seat functions
+// ---------- Seat Functions ----------
 function buildSeats(){
-  seatmapEl.innerHTML = "";
+  seatmapEl.innerHTML="";
   for(let i=1;i<=49;i++){
     seats[i] = seats[i] || {status:"free"};
     const div = document.createElement("div");
     div.className="seat";
     div.dataset.id=i;
     div.textContent=i;
-    div.addEventListener("click", ()=>{ 
-      if(seats[i].status==="taken") return; 
+    div.addEventListener("click", ()=>{
+      if(seats[i].status==="taken") return;
       if(seats[i].status==="selected"){ seats[i].status="free"; selected.delete(i); } 
-      else { seats[i].status="selected"; selected.add(i); } 
-      refreshSeats(); updateSummary(); 
+      else { seats[i].status="selected"; selected.add(i); }
+      refreshSeats(); updateSummary();
     });
     seatmapEl.appendChild(div);
     if(i%3===0 && i<49){ const aisle=document.createElement('div'); aisle.className='aisle'; seatmapEl.appendChild(aisle); }
@@ -130,44 +111,38 @@ async function saveBooking(name, phone, route, date, seatsArr){
   await addDoc(bookingsCol,{ name, phone, route, date, seats: seatsArr, timestamp: Timestamp.now(), paid:true });
 }
 
-// Event listeners
+// ---------- Event Listeners ----------
 document.getElementById("route").addEventListener("change", ()=>{ selected.clear(); refreshSeats(); updateSummary(); });
 document.getElementById("date").addEventListener("change", ()=>{ selected.clear(); refreshSeats(); updateSummary(); });
 
-document.getElementById("book").addEventListener("click", ()=> {
-    const name = document.getElementById("fullname").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const date = document.getElementById("date").value;
-    const route = document.getElementById("route").value;
+document.getElementById("book").addEventListener("click", ()=>{
+  const name = document.getElementById("fullname").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const date = document.getElementById("date").value;
+  const route = document.getElementById("route").value;
 
-    if(!name || !phone){ alert("Enter name and phone number"); return; }
-    if(selected.size === 0){ alert("Select at least one seat"); return; }
+  if(!name || !phone){ alert("Enter name and phone number"); return; }
+  if(selected.size === 0){ alert("Select at least one seat"); return; }
 
-    const seatsArr = Array.from(selected);
-    const amount = seatsArr.length * ROUTE_PRICES[route] * 100;
+  const seatsArr = Array.from(selected);
+  const amount = seatsArr.length * ROUTE_PRICES[route] * 100;
 
-    let handler = PaystackPop.setup({
-        key: "pk_test_d1cfdee00c5d5743830737d892e4e86705a4d9cd",
-        email: phone + "@example.com",
-        amount: amount,
-        currency: "GHS",
-        ref: 'ET'+Math.floor(Math.random()*1000000000 + 1),
-        metadata: { custom_fields:[{display_name:"Full Name", value:name},{display_name:"Phone", value:phone},{display_name:"Route", value:route},{display_name:"Seats", value:seatsArr.join(", ")}] },
-        callback: function(response){
-            const reference = response.reference;
-
-            // ---------- Verify payment via Cloudflare Worker ----------
-            fetch("https://shy-bonus-fbab.elitetransportghana.workers.dev/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ reference })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.verified){
-                    saveBooking(name, phone, route, date, seatsArr).then(()=>{
-                        const totalPrice = seatsArr.length * ROUTE_PRICES[route];
-                        receiptBody.innerHTML = `
+  let handler = PaystackPop.setup({
+    key: "pk_test_d1cfdee00c5d5743830737d892e4e86705a4d9cd",
+    email: phone + "@example.com",
+    amount: amount,
+    currency: "GHS",
+    ref: 'ET'+Math.floor(Math.random()*1000000000 + 1),
+    metadata: { custom_fields:[
+      {display_name:"Full Name", value:name},
+      {display_name:"Phone", value:phone},
+      {display_name:"Route", value:route},
+      {display_name:"Seats", value:seatsArr.join(", ")}
+    ] },
+    callback: function(response){
+      saveBooking(name, phone, route, date, seatsArr).then(()=>{
+        const totalPrice = seatsArr.length * ROUTE_PRICES[route];
+        receiptBody.innerHTML = `
 <p><strong>Passenger:</strong> ${name}</p>
 <p><strong>Phone:</strong> ${phone}</p>
 <p><strong>Boarding:</strong> UDS Campus</p>
@@ -177,21 +152,16 @@ document.getElementById("book").addEventListener("click", ()=> {
 <p><strong>Total Paid:</strong> ₵${totalPrice}</p>
 <p><em>Payment confirmed. Thank you for choosing Elite Transport! <br> Kindly screenshot your ticket. Join our WhatsApp Group: 
 <a href="https://chat.whatsapp.com/KcnxiUZdSLG5R7B3i97tRk" target="_blank">Click Here</a></em></p>
-                        `;
-                        modal.style.display = "flex";
-                        selected.clear();
-                        refreshSeats();
-                        updateSummary();
-                    });
-                } else {
-                    alert("Payment could not be verified. Contact support.");
-                }
-            })
-            .catch(err => { console.error(err); alert("Error verifying payment. Contact support."); });
-        },
-        onClose: function(){ alert("Payment not completed"); }
-    });
-    handler.openIframe();
+        `;
+        modal.style.display = "flex";
+        selected.clear();
+        refreshSeats();
+        updateSummary();
+      });
+    },
+    onClose: function(){ alert("Payment not completed"); }
+  });
+  handler.openIframe();
 });
 
 document.getElementById("closeModal").addEventListener("click", ()=>{ modal.style.display="none"; });
@@ -206,8 +176,8 @@ buildSeats(); refreshSeats(); updateSummary();
     <img class="logo" src="https://i.ibb.co/Kty8MqP/ELITE-TRANSPORT.png" alt="Elite Transport Logo">
 
     <h2>Passenger Details</h2>
-    <input type="text" id="fullname" placeholder="Full Name">
-    <input type="text" id="phone" placeholder="Phone Number">
+    <input type="text" id="fullname" placeholder="Full Name"><br>
+    <input type="text" id="phone" placeholder="Phone Number"><br>
 
     <label>Travel Date</label>
     <select id="date">
@@ -222,6 +192,7 @@ buildSeats(); refreshSeats(); updateSummary();
       <option value="Accra">Accra — ₵240</option>
       <option value="Kumasi">Kumasi — ₵140</option>
       <option value="Sunyani">Sunyani — ₵140</option>
+      <option value="Takoradi">Takoradi — ₵240</option>
     </select>
 
     <h2>Select Your Seat(s) (1–49)</h2>
@@ -231,6 +202,7 @@ buildSeats(); refreshSeats(); updateSummary();
       <p>Seats Selected: <span id="selectedCount">0</span></p>
       <p>Total(online charges apply): ₵<span id="total">0</span></p>
     </div>
+
     <button id="book">Pay & Book Now</button>
   </div>
 </div>

@@ -183,19 +183,6 @@ document.getElementById("book").addEventListener("click", async ()=> {
     const generatedRef = 'ET' + Math.floor(Math.random() * 1000000000 + 1);
 
     // 1️⃣ Send a pending booking to backend BEFORE opening Paystack
-    await fetch("https://shy-bonus-fbab.elitetransportghana.workers.dev/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            reference: generatedRef,
-            name,
-            phone,
-            route,
-            date,
-            seats: seatsArr,
-            amount
-        })
-    });
 
     // 2️⃣ Now open paystack
     let handler = PaystackPop.setup({
@@ -210,6 +197,20 @@ document.getElementById("book").addEventListener("click", async ()=> {
                 {display_name:"Phone", value:phone},
                 {display_name:"Route", value:route},
                 {display_name:"Seats", value:seatsArr.join(", ")}
+              
+                await fetch("https://shy-bonus-fbab.elitetransportghana.workers.dev/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            reference: generatedRef,
+            name,
+            phone,
+            route,
+            date,
+            seats: seatsArr,
+            amount
+        })
+    });
             ]
         },
         callback: function(response){

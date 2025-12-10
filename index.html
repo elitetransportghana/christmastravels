@@ -265,8 +265,31 @@ buildSeats(); refreshSeats(); updateSummary();
   <div class="modal-content">
     <h2>Elite Transport — Booking Receipt</h2>
     <div id="receiptBody"></div>
+
+    <button id="downloadBtn">Download Receipt</button>
     <button id="closeModal">Close</button>
   </div>
 </div>
+
+</div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+document.getElementById("downloadBtn").addEventListener("click", () => {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+
+    const receiptContent = document.getElementById("receiptBody").innerText;
+
+    pdf.setFontSize(14);
+    pdf.text("Elite Transport — Booking Receipt", 10, 10);
+    pdf.setFontSize(12);
+
+    const lines = pdf.splitTextToSize(receiptContent, 180);
+    pdf.text(lines, 10, 20);
+
+    pdf.save("Elite_Transport_Receipt.pdf");
+});
+</script>
+
 </body>
 </html>

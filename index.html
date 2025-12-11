@@ -1,188 +1,461 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Sausage Haven — Sadia Sausage</title>
-  <meta name="description" content="The Sausage Haven — Buy Sadia sausages online. Fresh, quality, delivered fast." />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --accent:#e53935;
-      --accent-2:#d32f2f;
-      --muted:#6b7280;
-      --card:#ffffff;
-      --shadow:0 6px 18px rgba(0,0,0,0.08);
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,#fff5f5 0%, #ffffff 100%);color:#111}
-    header{backdrop-filter: blur(6px);position:sticky;top:0;z-index:50;background:rgba(255,255,255,0.9);border-bottom:1px solid #eee}
-    .container{max-width:1100px;margin:0 auto;padding:1rem}
-    .nav{display:flex;align-items:center;gap:1rem;justify-content:space-between}
-    .brand{display:flex;align-items:center;gap:0.75rem}
-    .logo{width:44px;height:44px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;box-shadow:var(--shadow)}
-    .brand h1{font-size:1rem;margin:0}
-    nav a{margin-left:1rem;text-decoration:none;color:#111;font-weight:600}
-    .hero{padding:2rem 0;display:grid;grid-template-columns:1fr 360px;gap:2rem;align-items:center}
-    .hero-card{background:linear-gradient(180deg,#fff,#fff0f0);padding:1.5rem;border-radius:14px;box-shadow:var(--shadow)}
-    .hero h2{margin:0 0 .5rem 0;font-size:1.6rem;color:var(--accent-2)}
-    .hero p{color:var(--muted);margin:0 0 1rem 0}
-    .cta{display:flex;gap:.75rem}
-    .btn{background:var(--accent);color:#fff;padding:.62rem .85rem;border-radius:10px;border:none;font-weight:700;cursor:pointer}
-    .btn.secondary{background:transparent;border:2px solid var(--accent);color:var(--accent)}
-    .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-top:1rem}
-    .card{background:var(--card);border-radius:12px;padding:1rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.6rem}
-    .card img{width:100%;height:140px;object-fit:cover;border-radius:8px}
-    .card .title{font-weight:700}
-    .price{font-weight:700;color:var(--accent-2)}
-    .muted{color:var(--muted);font-size:.9rem}
-    .card footer{display:flex;justify-content:space-between;align-items:center;margin-top:auto}
-    .cart-btn{position:relative}
-    .badge{position:absolute;top:-8px;right:-8px;background:#ff4d4f;color:#fff;border-radius:999px;padding:3px 7px;font-size:0.74rem}
-    .cart-drawer{position:fixed;right:18px;bottom:18px;background:linear-gradient(180deg,#fff,#fff5f5);border-radius:14px;padding:1rem;width:360px;box-shadow:0 20px 50px rgba(227,57,53,0.12);transform:translateY(0);max-height:70vh;overflow:auto;display:none}
-    .cart-empty{padding:2rem;text-align:center;color:var(--muted)}
-    .cart-item{display:flex;gap:.6rem;align-items:center;padding:.6rem 0;border-bottom:1px solid #f0f0f0}
-    .qty{display:flex;gap:.3rem;align-items:center}
-    .qty button{padding:.2rem .5rem;border-radius:6px;border:1px solid #e6e6e6;background:#fff;cursor:pointer}
-    footer.site{margin-top:2rem;padding:1.5rem 0;color:var(--muted);border-top:1px solid #f0f0f0;text-align:center}
-  </style>
-</head>
-<body>
-  <header>
-    <div class="container nav">
-      <div class="brand">
-        <div class="logo">SH</div>
-        <h1>The Sausage Haven</h1>
-      </div>
-      <button class="btn cart-btn" id="openCart">Cart <span class="badge" id="cartCount" style="display:none">0</span></button>
-    </div>
-  </header>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elite Transport — Christmas Break Bus Booking</title>
 
-  <main class="container">
-    <section class="hero">
-      <div class="hero-card">
-        <h2>Sadia Sausage</h2>
-        <p>Enjoy the best quality Sadia sausages, fresh and ready to cook. Perfect for meals at home or on campus.</p>
-        <div class="cta">
-          <button class="btn" onclick="document.getElementById('productsGrid').scrollIntoView({behavior:'smooth'})">Order Now</button>
-          <button class="btn secondary" onclick="openCartDrawer()">View Cart</button>
-        </div>
-      </div>
-      <div>
-        <img src="https://images.unsplash.com/photo-1621807414432-0c648eabea0e?auto=format&fit=crop&w=600&q=60" alt="Sadia sausage" style="width:100%;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.08)" />
-      </div>
-    </section>
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="https://i.ibb.co/Kty8MqP/ELITE-TRANSPORT.png">
 
-    <section id="products">
-      <h3 style="margin:1.25rem 0 0.6rem 0">Our Products</h3>
-      <div id="productsGrid" class="products">
-        <!-- product card -->
-      </div>
-    </section>
+<style>
+/* ===== Base Styles ===== */
+body {
+  font-family: Arial, sans-serif;
+  background: #f6f7fb;
+  margin: 0;
+  padding: 20px;
+  color: black;
+}
 
-    <footer class="site">
-      &copy; 2025 The Sausage Haven — Contact: +233 20 000 0000 | hello@sausagehaven.com
-    </footer>
-  </main>
+h1, h2 {
+  margin: 0 0 12px 0;
+  color: black;
+}
 
-  <div id="cartDrawer" class="cart-drawer">
-    <h4 style="margin:0 0 .5rem 0">Your cart</h4>
-    <div id="cartContent"></div>
-    <div style="padding-top:.6rem;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <div class="muted">Subtotal</div>
-        <div id="cartSubtotal" style="font-weight:800;font-size:1.1rem">₵0.00</div>
-      </div>
-      <div style="display:flex;gap:.6rem">
-        <button class="btn secondary" onclick="closeCartDrawer()">Continue shopping</button>
-        <button class="btn" id="checkoutBtn">Checkout</button>
-      </div>
-    </div>
-  </div>
+.container-wrapper {
+  position: relative;
+  overflow: hidden;
+  max-width: 900px;
+  margin: auto;
+}
 
-  <script>
-    const PRODUCTS=[
-      {id:1,name:'Sadia Sausage Pack',price:25,image:'https://images.unsplash.com/photo-1621807414432-0c648eabea0e?auto=format&fit=crop&w=600&q=60'}
-    ];
+.container {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
 
-    const productsGrid=document.getElementById('productsGrid');
-    const cartCount=document.getElementById('cartCount');
-    const cartDrawer=document.getElementById('cartDrawer');
-    const cartContent=document.getElementById('cartContent');
-    const cartSubtotal=document.getElementById('cartSubtotal');
-    let CART={};
+/* ===== Inputs ===== */
+input, select, button {
+  padding: 8px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+}
 
-    function renderProducts(){
-      productsGrid.innerHTML='';
-      PRODUCTS.forEach(p=>{
-        const el=document.createElement('div');el.className='card';
-        el.innerHTML=`
-          <img src="${p.image}" alt="${p.name}" />
-          <div class="title">${p.name}</div>
-          <div class="muted">In stock</div>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div class="price">₵${p.price.toFixed(2)}</div>
-            <button class="btn" onclick="addToCart(${p.id})">Add</button>
-          </div>
-        `;
-        productsGrid.appendChild(el);
-      });
-    }
+button {
+  background: #0ea5a4;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
 
-    function addToCart(id){
-      if(!CART[id]) CART[id]=0;
-      CART[id]+=1;
-      updateCartUI();
-      openCartDrawer();
-    }
+/* ===== Seat Map ===== */
+.seatmap {
+  display: grid;
+  grid-template-columns: repeat(4, 50px);
+  gap: 8px;
+  margin-bottom: 12px;
+}
 
-    function removeFromCart(id){ delete CART[id]; updateCartUI(); }
-    function changeQty(id,delta){ if(!CART[id]) return; CART[id]+=delta; if(CART[id]<=0) delete CART[id]; updateCartUI(); }
+.seat {
+  width: 50px;
+  height: 50px;
+  background: #eef2ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+}
 
-    function updateCartUI(){
-      const items=Object.keys(CART).map(id=>{const p=PRODUCTS.find(x=>x.id==id);return {...p,qty:CART[id]}});
-      const totalQty=items.reduce((s,i)=>s+i.qty,0);
-      if(totalQty>0){cartCount.style.display='inline-block';cartCount.textContent=totalQty}else{cartCount.style.display='none'}
-      if(items.length===0){cartContent.innerHTML='<div class="cart-empty">Your cart is empty.</div>'; cartSubtotal.textContent='₵0.00'; return;}
-      cartContent.innerHTML='';
-      let subtotal=0;
-      items.forEach(it=>{
-        subtotal+=it.price*it.qty;
-        const node=document.createElement('div');node.className='cart-item';
-        node.innerHTML=`
-          <img src="${it.image}" style="width:52px;height:52px;object-fit:cover;border-radius:8px" />
-          <div style="flex:1">
-            <div style="font-weight:700">${it.name}</div>
-            <div class="muted">₵${it.price.toFixed(2)} each</div>
-          </div>
-          <div style="text-align:right">
-            <div class="qty">
-              <button onclick="changeQty(${it.id},-1)">−</button>
-              <div style="padding:.2rem .6rem">${it.qty}</div>
-              <button onclick="changeQty(${it.id},1)">+</button>
-            </div>
-            <div style="margin-top:.4rem;font-weight:700">₵${(it.price*it.qty).toFixed(2)}</div>
-            <div style="margin-top:.3rem"><button onclick="removeFromCart(${it.id})" style="border:none;background:transparent;color:#d03;cursor:pointer">Remove</button></div>
-          </div>
-        `;
-        cartContent.appendChild(node);
-      });
-      cartSubtotal.textContent='₵'+subtotal.toFixed(2);
-    }
+.seat.selected {
+  background: #06b6d4;
+  color: white;
+}
 
-    function openCartDrawer(){ cartDrawer.style.display='block'; cartDrawer.scrollIntoView({behavior:'smooth'}); }
-    function closeCartDrawer(){ cartDrawer.style.display='none'; }
-    document.getElementById('openCart').addEventListener('click',openCartDrawer);
-    document.getElementById('checkoutBtn').addEventListener('click',()=>{
-      if(Object.keys(CART).length===0){alert('Cart is empty'); return;}
-      alert('Checkout demo. Integrate Paystack here.');
-      console.log('Checkout payload:',CART);
+.seat.taken {
+  background: #111827;
+  color: white;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.aisle {
+  width: 20px;
+}
+
+.summary {
+  background: #fbfdff;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #eef2ff;
+  margin-top: 12px;
+}
+
+/* ===== Modal ===== */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px;
+  width: 90%;
+  z-index: 10000;
+}
+
+.logo {
+  display: block;
+  margin: 0 auto 15px auto;
+  width: 120px;
+  height: 50px;
+  object-fit: contain;
+}
+
+/* ===== Snowflakes ===== */
+@keyframes snow {
+  0% { transform: translateY(-10px) translateX(0); }
+  50% { transform: translateY(50vh) translateX(var(--sway)); }
+  100% { transform: translateY(100vh) translateX(0); }
+}
+
+.snowflake {
+  position: absolute;
+  top: -10px;
+  color: white;
+  animation-name: snow;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  pointer-events: none;
+}
+</style>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<!-- ===== Firebase + App Logic ===== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAemck6mdMNW_sripWUzM8WQjjrmLf69pQ",
+  authDomain: "elite-travels.firebaseapp.com",
+  projectId: "elite-travels",
+  storageBucket: "elite-travels.firebasestorage.app",
+  messagingSenderId: "501436168620",
+  appId: "1:501436168620:web:f62aa5f9e8e6a4310a2209",
+  measurementId: "G-26GGV75HV9"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ===== Route Prices ===== */
+const ROUTE_PRICES = {
+  "Accra": 245,
+  "Kumasi": 143,
+  "Sunyani": 143,
+  "Takoradi": 245
+};
+
+const preBooked = {
+  "Accra": [],
+  "Kumasi": [],
+  "Sunyani": [],
+  "Takoradi": []
+};
+
+const seats = {};
+const selected = new Set();
+
+/* ===== DOM Elements ===== */
+const seatmapEl = document.getElementById("seatmap");
+const selectedCountEl = document.getElementById("selectedCount");
+const totalEl = document.getElementById("total");
+const modal = document.getElementById("modal");
+const receiptBody = document.getElementById("receiptBody");
+
+/* ===== Snowflakes ===== */
+for (let i = 0; i < 50; i++) {
+  const snow = document.createElement("div");
+  snow.className = "snowflake";
+  snow.textContent = "❄";
+  snow.style.left = Math.random() * 100 + "vw";
+  snow.style.fontSize = Math.random() * 20 + 10 + "px";
+  snow.style.opacity = Math.random() * 0.8 + 0.2;
+  snow.style.animationDuration = Math.random() * 10 + 5 + "s";
+  snow.style.animationDelay = Math.random() * 10 + "s";
+  snow.style.setProperty("--sway", Math.random() * 50 - 25 + "px");
+  document.body.appendChild(snow);
+}
+
+/* ===== Build Seat Map ===== */
+function buildSeats() {
+  seatmapEl.innerHTML = "";
+  for (let i = 1; i <= 49; i++) {
+    seats[i] = seats[i] || { status: "free" };
+
+    const div = document.createElement("div");
+    div.className = "seat";
+    div.dataset.id = i;
+    div.textContent = i;
+
+    div.addEventListener("click", () => {
+      if (seats[i].status === "taken") return;
+
+      if (selected.has(i)) {
+        selected.delete(i);
+      } else {
+        selected.add(i);
+      }
+
+      refreshSeats();
+      updateSummary();
     });
 
-    renderProducts();
-    updateCartUI();
-  </script>
+    seatmapEl.appendChild(div);
+
+    if (i % 3 === 0 && i < 49) {
+      const aisle = document.createElement("div");
+      aisle.className = "aisle";
+      seatmapEl.appendChild(aisle);
+    }
+  }
+}
+
+/* ===== Refresh Seats ===== */
+async function refreshSeats() {
+  const route = document.getElementById("route").value;
+  const date = document.getElementById("date").value;
+
+  let booked = preBooked[route] || [];
+
+  const docId = `${route}_${date}`;
+  const ref = doc(db, "bookings", docId);
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    booked = booked.concat(snap.data().seats || []);
+  }
+
+  document.querySelectorAll(".seat").forEach(el => {
+    const id = parseInt(el.dataset.id);
+    el.classList.remove("selected", "taken");
+
+    if (selected.has(id)) el.classList.add("selected");
+    if (booked.includes(id)) el.classList.add("taken");
+  });
+}
+
+/* ===== Summary Update ===== */
+function updateSummary() {
+  const route = document.getElementById("route").value;
+  const price = ROUTE_PRICES[route];
+
+  selectedCountEl.textContent = selected.size;
+  totalEl.textContent = (selected.size * price).toFixed(2);
+}
+
+/* ===== Save Booking ===== */
+async function saveBooking(name, phone, route, date, seatsArr) {
+  const docId = `${route}_${date}`;
+  const docRef = doc(db, "bookings", docId);
+  const snap = await getDoc(docRef);
+
+  let currentSeats = snap.exists() ? snap.data().seats : [];
+  const updatedSeats = [...new Set([...currentSeats, ...seatsArr])];
+
+  await setDoc(docRef, { seats: updatedSeats });
+
+  const bookingsCol = collection(db, "passengerBookings");
+
+  await addDoc(bookingsCol, {
+    name,
+    phone,
+    route,
+    date,
+    seats: seatsArr,
+    timestamp: Timestamp.now(),
+    paid: true
+  });
+}
+
+/* ===== Event Listeners ===== */
+document.getElementById("route").addEventListener("change", () => {
+  selected.clear();
+  refreshSeats();
+  updateSummary();
+});
+
+document.getElementById("date").addEventListener("change", () => {
+  selected.clear();
+  refreshSeats();
+  updateSummary();
+});
+
+/* ===== Paystack Handler ===== */
+document.getElementById("book").addEventListener("click", () => {
+  const name = document.getElementById("fullname").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const date = document.getElementById("date").value;
+  const route = document.getElementById("route").value;
+
+  if (!name || !phone) return alert("Enter name and phone number");
+  if (selected.size === 0) return alert("Select at least one seat");
+
+  const seatsArr = Array.from(selected);
+  const amount = seatsArr.length * ROUTE_PRICES[route] * 100;
+
+  const handler = PaystackPop.setup({
+    key: "pk_live_2679fc413ae6e7c3892e04f437cb4367d6f3a503",
+    email: phone + "@example.com",
+    amount: amount,
+    currency: "GHS",
+    ref: "ET" + Math.floor(Math.random() * 1000000000 + 1),
+
+    metadata: {
+      custom_fields: [
+        { display_name: "Full Name", value: name },
+        { display_name: "Phone", value: phone },
+        { display_name: "Route", value: route },
+        { display_name: "Seats", value: seatsArr.join(", ") }
+      ]
+    },
+
+    callback: function () {
+      saveBooking(name, phone, route, date, seatsArr).then(() => {
+        const totalPrice = seatsArr.length * ROUTE_PRICES[route];
+
+        receiptBody.innerHTML = `
+          <p><strong>Passenger:</strong> ${name}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Boarding:</strong> UDS Campus</p>
+          <p><strong>Date:</strong> ${date}</p>
+          <p><strong>Route:</strong> ${route}</p>
+          <p><strong>Seat Number(s):</strong> ${seatsArr.join(", ")}</p>
+          <p><strong>Total Paid:</strong> ₵${totalPrice}</p>
+          <p><em>Payment confirmed. Thank you for choosing Elite Transport!<br>
+          Kindly screenshot your ticket.<br>
+          Join our WhatsApp Group:
+          <a href="https://chat.whatsapp.com/KcnxiUZdSLG5R7B3i97tRk" target="_blank">Click Here</a></em></p>
+        `;
+
+        modal.style.display = "flex";
+        selected.clear();
+        refreshSeats();
+        updateSummary();
+      });
+    },
+
+    onClose: function () {
+      alert("Payment not completed");
+    }
+  });
+
+  handler.openIframe();
+});
+
+/* ===== Close Modal ===== */
+document.getElementById("closeModal").addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+/* ===== Initialize Page ===== */
+buildSeats();
+refreshSeats();
+updateSummary();
+</script>
+</head>
+
+<body>
+<div class="container-wrapper">
+  <div class="container">
+
+    <h1>🎄 Elite Transport — Christmas Break Bus Booking 🎄</h1>
+    <img class="logo" src="https://i.ibb.co/Kty8MqP/ELITE-TRANSPORT.png" alt="Elite Transport Logo">
+
+    <h2>After completing your payment, please return to this website to download your receipt.</h2>
+
+    <!-- Passenger Details -->
+    <h2>Passenger Details</h2>
+
+    <input type="text" id="fullname" placeholder="Full Name">
+    <input type="text" id="phone" placeholder="Phone Number">
+
+    <label>Travel Date</label>
+    <select id="date">
+      <option value="2025-12-20">20th December</option>
+      <option value="2025-12-21">21st December</option>
+    </select>
+
+    <p>Boarding Location: <strong>UDS Campus</strong></p>
+    <p>Departure: <strong>7AM</strong></p><br>
+
+    <label>Route</label>
+    <select id="route">
+      <option value="Accra">Accra — ₵240</option>
+      <option value="Kumasi">Kumasi — ₵140</option>
+      <option value="Sunyani">Sunyani — ₵140</option>
+      <option value="Takoradi">Takoradi — ₵240</option>
+    </select>
+
+    <!-- Seat Selection -->
+    <h2>Select Your Seat(s) (1–49)</h2>
+    <div id="seatmap" class="seatmap"></div>
+
+    <div class="summary">
+      <p>Seats Selected: <span id="selectedCount">0</span></p>
+      <p>Total (online charges apply): ₵<span id="total">0</span></p>
+    </div>
+
+    <br>
+    <button id="book">Pay & Book Now</button>
+  </div>
+</div>
+
+<!-- ===== Receipt Modal ===== -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <h2>Elite Transport — Booking Receipt</h2>
+    <div id="receiptBody"></div>
+
+    <button id="downloadBtn">Download Receipt</button>
+    <button id="closeModal">Close</button>
+  </div>
+</div>
+
+<!-- ===== PDF Generator ===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+document.getElementById("downloadBtn").addEventListener("click", () => {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  const content = document.getElementById("receiptBody").innerText;
+
+  pdf.setFontSize(14);
+  pdf.text("Elite Transport — Booking Receipt", 10, 10);
+
+  pdf.setFontSize(12);
+  const lines = pdf.splitTextToSize(content, 180);
+  pdf.text(lines, 10, 20);
+
+  pdf.save("Elite_Transport_Receipt.pdf");
+});
+</script>
+
 </body>
 </html>

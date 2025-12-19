@@ -1,465 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Elite Transport — Christmas Break Bus Booking</title>
+  <meta charset="UTF-8">
+  <title>Elite Transport — Booking Update</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Favicon -->
-<link rel="icon" type="image/png" href="https://i.ibb.co/Kty8MqP/ELITE-TRANSPORT.png">
-
-<style>
-/* ===== Base Styles ===== */
-body {
-  font-family: Arial, sans-serif;
-  background: #f6f7fb;
-  margin: 0;
-  padding: 20px;
-  color: black;
-}
-
-h1, h2 {
-  margin: 0 0 12px 0;
-  color: black;
-}
-
-.container-wrapper {
-  position: relative;
-  overflow: hidden;
-  max-width: 900px;
-  margin: auto;
-}
-
-.container {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-/* ===== Inputs ===== */
-input, select, button {
-  padding: 8px;
-  margin-bottom: 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-button {
-  background: #0ea5a4;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-/* ===== Seat Map ===== */
-.seatmap {
-  display: grid;
-  grid-template-columns: repeat(4, 50px);
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.seat {
-  width: 50px;
-  height: 50px;
-  background: #eef2ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.seat.selected {
-  background: #06b6d4;
-  color: white;
-}
-
-.seat.taken {
-  background: #111827;
-  color: white;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.aisle {
-  width: 20px;
-}
-
-.summary {
-  background: #fbfdff;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #eef2ff;
-  margin-top: 12px;
-}
-
-/* ===== Modal ===== */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 400px;
-  width: 90%;
-  z-index: 10000;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 15px auto;
-  width: 120px;
-  height: 50px;
-  object-fit: contain;
-}
-
-/* ===== Snowflakes ===== */
-@keyframes snow {
-  0% { transform: translateY(-10px) translateX(0); }
-  50% { transform: translateY(50vh) translateX(var(--sway)); }
-  100% { transform: translateY(100vh) translateX(0); }
-}
-
-.snowflake {
-  position: absolute;
-  top: -10px;
-  color: white;
-  animation-name: snow;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-  pointer-events: none;
-}
-</style>
-
-<script src="https://js.paystack.co/v1/inline.js"></script>
-
-<!-- ===== Firebase + App Logic ===== -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAemck6mdMNW_sripWUzM8WQjjrmLf69pQ",
-  authDomain: "elite-travels.firebaseapp.com",
-  projectId: "elite-travels",
-  storageBucket: "elite-travels.firebasestorage.app",
-  messagingSenderId: "501436168620",
-  appId: "1:501436168620:web:f62aa5f9e8e6a4310a2209",
-  measurementId: "G-26GGV75HV9"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* ===== Route Prices ===== */
-const ROUTE_PRICES = {
-  "Accra": 245,
-  "Kumasi": 143,
-  "Sunyani": 143,
-  "Takoradi": 245
-};
-
-const preBooked = {
-  "Accra": [],
-  "Kumasi": [],
-  "Sunyani": [],
-  "Takoradi": []
-};
-
-const seats = {};
-const selected = new Set();
-
-/* ===== DOM Elements ===== */
-const seatmapEl = document.getElementById("seatmap");
-const selectedCountEl = document.getElementById("selectedCount");
-const totalEl = document.getElementById("total");
-const modal = document.getElementById("modal");
-const receiptBody = document.getElementById("receiptBody");
-
-/* ===== Snowflakes ===== */
-for (let i = 0; i < 50; i++) {
-  const snow = document.createElement("div");
-  snow.className = "snowflake";
-  snow.textContent = "❄";
-  snow.style.left = Math.random() * 100 + "vw";
-  snow.style.fontSize = Math.random() * 20 + 10 + "px";
-  snow.style.opacity = Math.random() * 0.8 + 0.2;
-  snow.style.animationDuration = Math.random() * 10 + 5 + "s";
-  snow.style.animationDelay = Math.random() * 10 + "s";
-  snow.style.setProperty("--sway", Math.random() * 50 - 25 + "px");
-  document.body.appendChild(snow);
-}
-
-/* ===== Build Seat Map ===== */
-function buildSeats() {
-  seatmapEl.innerHTML = "";
-  for (let i = 1; i <= 49; i++) {
-    seats[i] = seats[i] || { status: "free" };
-
-    const div = document.createElement("div");
-    div.className = "seat";
-    div.dataset.id = i;
-    div.textContent = i;
-
-    div.addEventListener("click", () => {
-      if (seats[i].status === "taken") return;
-
-      if (selected.has(i)) {
-        selected.delete(i);
-      } else {
-        selected.add(i);
-      }
-
-      refreshSeats();
-      updateSummary();
-    });
-
-    seatmapEl.appendChild(div);
-
-    if (i % 3 === 0 && i < 49) {
-      const aisle = document.createElement("div");
-      aisle.className = "aisle";
-      seatmapEl.appendChild(aisle);
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6fb;
+      color: #111827;
+      padding: 20px;
     }
-  }
-}
 
-/* ===== Refresh Seats ===== */
-async function refreshSeats() {
-  const route = document.getElementById("route").value;
-  const date = document.getElementById("date").value;
-
-  let booked = preBooked[route] || [];
-
-  const docId = `${route}_${date}`;
-  const ref = doc(db, "bookings", docId);
-  const snap = await getDoc(ref);
-
-  if (snap.exists()) {
-    booked = booked.concat(snap.data().seats || []);
-  }
-
-  document.querySelectorAll(".seat").forEach(el => {
-    const id = parseInt(el.dataset.id);
-    el.classList.remove("selected", "taken");
-
-    if (selected.has(id)) el.classList.add("selected");
-    if (booked.includes(id)) el.classList.add("taken");
-  });
-}
-
-/* ===== Summary Update ===== */
-function updateSummary() {
-  const route = document.getElementById("route").value;
-  const price = ROUTE_PRICES[route];
-
-  selectedCountEl.textContent = selected.size;
-  totalEl.textContent = (selected.size * price).toFixed(2);
-}
-
-/* ===== Save Booking ===== */
-async function saveBooking(name, phone, route, date, seatsArr) {
-  const docId = `${route}_${date}`;
-  const docRef = doc(db, "bookings", docId);
-  const snap = await getDoc(docRef);
-
-  let currentSeats = snap.exists() ? snap.data().seats : [];
-  const updatedSeats = [...new Set([...currentSeats, ...seatsArr])];
-
-  await setDoc(docRef, { seats: updatedSeats });
-
-  const bookingsCol = collection(db, "passengerBookings");
-
-  await addDoc(bookingsCol, {
-    name,
-    phone,
-    route,
-    date,
-    seats: seatsArr,
-    timestamp: Timestamp.now(),
-    paid: true
-  });
-}
-
-/* ===== Event Listeners ===== */
-document.getElementById("route").addEventListener("change", () => {
-  selected.clear();
-  refreshSeats();
-  updateSummary();
-});
-
-document.getElementById("date").addEventListener("change", () => {
-  selected.clear();
-  refreshSeats();
-  updateSummary();
-});
-
-/* ===== Paystack Handler ===== */
-document.getElementById("book").addEventListener("click", () => {
-  const name = document.getElementById("fullname").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const date = document.getElementById("date").value;
-  const route = document.getElementById("route").value;
-
-  if (!name || !phone) return alert("Enter name and phone number");
-  if (selected.size === 0) return alert("Select at least one seat");
-
-  const seatsArr = Array.from(selected);
-  const amount = seatsArr.length * ROUTE_PRICES[route] * 100;
-
-  const handler = PaystackPop.setup({
-    key: "",
-    email: phone + "@example.com",
-    amount: amount,
-    currency: "GHS",
-    ref: "ET" + Math.floor(Math.random() * 1000000000 + 1),
-
-    metadata: {
-      custom_fields: [
-        { display_name: "Full Name", value: name },
-        { display_name: "Phone", value: phone },
-        { display_name: "Route", value: route },
-        { display_name: "Seats", value: seatsArr.join(", ") }
-      ]
-    },
-
-    callback: function () {
-      saveBooking(name, phone, route, date, seatsArr).then(() => {
-        const totalPrice = seatsArr.length * ROUTE_PRICES[route];
-
-        receiptBody.innerHTML = `
-          <p><strong>Passenger:</strong> ${name}</p>
-          <p><strong>Phone:</strong> ${phone}</p>
-          <p><strong>Boarding:</strong> UDS Campus</p>
-          <p><strong>Date:</strong> ${date}</p>
-          <p><strong>Route:</strong> ${route}</p>
-          <p><strong>Seat Number(s):</strong> ${seatsArr.join(", ")}</p>
-          <p><strong>Total Paid:</strong> ₵${totalPrice}</p>
-          <p><em>Payment confirmed. Thank you for choosing Elite Transport!<br>
-          Kindly screenshot your ticket.<br>
-          Join our WhatsApp Group:
-          <a href="https://chat.whatsapp.com/KcnxiUZdSLG5R7B3i97tRk" target="_blank">Click Here</a></em></p>
-        `;
-
-        modal.style.display = "flex";
-        selected.clear();
-        refreshSeats();
-        updateSummary();
-      });
-    },
-
-    onClose: function () {
-      alert("Payment not completed");
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     }
-  });
 
-  handler.openIframe();
-});
+    h2 {
+      text-align: center;
+      color: #0f172a;
+      margin-bottom: 20px;
+    }
 
-/* ===== Close Modal ===== */
-document.getElementById("closeModal").addEventListener("click", () => {
-  modal.style.display = "none";
-});
+    p {
+      font-size: 15px;
+      line-height: 1.7;
+    }
 
-/* ===== Initialize Page ===== */
-buildSeats();
-refreshSeats();
-updateSummary();
-</script>
+    ul {
+      padding-left: 20px;
+      margin-bottom: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .notice {
+      background: #fef3c7;
+      border-left: 5px solid #f59e0b;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 25px 0;
+    }
+
+    .warning {
+      background: #fee2e2;
+      border-left: 5px solid #ef4444;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 25px 0;
+    }
+
+    a {
+      color: #0ea5a4;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 40px;
+      background: #0f172a;
+      color: #e5e7eb;
+      padding: 25px 20px;
+      border-radius: 14px;
+    }
+
+    .footer-content {
+      max-width: 800px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    footer h3 {
+      color: #22d3ee;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    footer p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #d1d5db;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #9ca3af;
+      border-top: 1px solid #1f2937;
+      padding-top: 12px;
+    }
+  </style>
 </head>
 
 <body>
-<div class="container-wrapper">
+
   <div class="container">
+    <h2>📢 ELITE TRANSPORT — IMPORTANT BOOKING UPDATE</h2>
 
-    <h1>🎄 Elite Transport — Christmas Break Bus Booking 🎄</h1>
-    <img class="logo" src="https://i.ibb.co/Kty8MqP/ELITE-TRANSPORT.png" alt="Elite Transport Logo">
+    <p><strong>Available Routes & Dates:</strong></p>
+    <ul>
+      <li>Sunyani — 20th & 21st December</li>
+      <li>Kumasi — 21st December</li>
+      <li>Accra — 20th & 21st December</li>
+    </ul>
 
-    <h2>After completing your payment, please return to this website to download your receipt.</h2>
-    <h3>Seats Highlighted in Ash have been booked!</h3>
-
-    <!-- Passenger Details -->
-    <h2>Passenger Details</h2>
-
-    <input type="text" id="fullname" placeholder="Full Name">
-    <input type="text" id="phone" placeholder="Phone Number">
-
-    <label>Travel Date</label>
-    <select id="date">
-      <option value="2025-12-20">20th December</option>
-      <option value="2025-12-21">21st December</option>
-    </select>
-
-    <p>Boarding Location: <strong>UDS Campus</strong></p>
-    <p>Departure: <strong>7AM</strong></p><br>
-
-    <label>Route</label>
-    <select id="route">
-      <option value="Accra">Accra — ₵240</option>
-      <option value="Kumasi">Kumasi — ₵140</option>
-      <option value="Sunyani">Sunyani — ₵140</option>
-    </select>
-
-    <!-- Seat Selection -->
-    <h2>Select Your Seat(s) (1–49)</h2>
-    <div id="seatmap" class="seatmap"></div>
-
-    <div class="summary">
-      <p>Seats Selected: <span id="selectedCount">0</span></p>
-      <p>Total (online charges apply): ₵<span id="total">0</span></p>
+    <div class="notice">
+      <p><strong>⚠️ BOOKING NOTICE</strong></p>
+      <p>
+        All bookings from now must be done via WhatsApp only:
+      </p>
+      <ul>
+        <li><a href="https://wa.me/233539431256">053 943 1256</a></li>
+        <li><a href="https://wa.me/233541675366">054 167 5366</a></li>
+      </ul>
     </div>
 
-    <br>
-    <button id="book">Pay & Book Now</button>
+    <div class="warning">
+      <p><strong>TAKORADI PASSENGERS</strong></p>
+      <p>
+        There will be <strong>NO bus to Takoradi until Thursday</strong> across all transport companies.
+      </p>
+      <p>
+        Takoradi passengers should <strong>join Kumasi — 21st December</strong>.
+      </p>
+    </div>
+
+    <p>
+      Thank you for your understanding and continued support.
+    </p>
+
+    <p>
+      <strong>Elite Transport</strong><br>
+      Safe • Reliable • Comfortable
+    </p>
   </div>
-</div>
 
-<!-- ===== Receipt Modal ===== -->
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <h2>Elite Transport — Booking Receipt</h2>
-    <div id="receiptBody"></div>
+  <footer>
+    <div class="footer-content">
 
-    <button id="downloadBtn">Download Receipt</button>
-    <button id="closeModal">Close</button>
-  </div>
-</div>
+      <div>
+        <h3>Elite Transport</h3>
+        <p>
+          Providing safe, reliable, and comfortable intercity transport for students and families.
+        </p>
+      </div>
 
-<!-- ===== PDF Generator ===== -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script>
-document.getElementById("downloadBtn").addEventListener("click", () => {
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-  const content = document.getElementById("receiptBody").innerText;
+      <div>
+        <h3>Trip Info</h3>
+        <p>
+          📍 Boarding Point: UDS Campus<br>
+          ⏰ Departure Time: 7:00 AM
+        </p>
+      </div>
 
-  pdf.setFontSize(14);
-  pdf.text("Elite Transport — Booking Receipt", 10, 10);
+      <div>
+        <h3>Bookings (WhatsApp)</h3>
+        <p>
+          <a href="https://wa.me/233539431256">053 943 1256</a><br>
+          <a href="https://wa.me/233541675366">054 167 5366</a>
+        </p>
+      </div>
 
-  pdf.setFontSize(12);
-  const lines = pdf.splitTextToSize(content, 180);
-  pdf.text(lines, 10, 20);
+      <div>
+        <h3>Notice</h3>
+        <p>
+          🚫 No Takoradi bus until Thursday.<br>
+          👉 Join <strong>Kumasi — 21st December</strong>.
+        </p>
+      </div>
 
-  pdf.save("Elite_Transport_Receipt.pdf");
-});
-</script>
+    </div>
 
-  <!--Start of Tawk.to Script-->
-
-<!--End of Tawk.to Script-->
+    <div class="footer-bottom">
+      © 2025 Elite Transport • Safe • Reliable • Comfortable <br>
+      Email:elitetransportghana@gmail.com
+    </div>
+  </footer>
 
 </body>
 </html>

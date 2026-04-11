@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Add Trip — Admin · Elite Transport</title>
+  <link rel="icon" href="../assets/logo.avif" type="image/avif" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="../style.css?v=11" />
+  <link rel="stylesheet" href="../landing.css?v=15" />
+  <link rel="stylesheet" href="../find-bus.css?v=8" />
+  <link rel="stylesheet" href="../checkout.css?v=10" />
+  <link rel="stylesheet" href="./app.css?v=1" />
+  <style>
+    /* ── Breadcrumb ── */
+    .at-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: rgba(17,34,17,.55);
+      padding: 0 0 4px;
+    }
+    .at-breadcrumb a {
+      color: #1a7a4a;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .at-breadcrumb a:hover { text-decoration: underline; }
+    .at-breadcrumb__sep { opacity: .45; }
+    .at-breadcrumb__current { font-weight: 600; color: rgba(17,34,17,.8); }
+
+    /* ── Page layout ── */
+    .at-page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+    .at-page__title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #112212;
+      margin: 12px 0 4px;
+    }
+    .at-page__sub {
+      font-size: 13px;
+      color: rgba(17,34,17,.5);
+      margin: 0 0 28px;
+    }
+
+    /* ── Cards ── */
+    .at-card {
+      background: #fff;
+      border: 1.5px solid #d5ead8;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .at-card__title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a7a4a;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      margin: 0 0 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .at-card__title i { font-size: 13px; opacity: .8; }
+
+    /* ── Grid ── */
+    .at-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 520px) { .at-grid-2 { grid-template-columns: 1fr; } }
+    .at-col-full { grid-column: 1 / -1; }
+
+    /* ── Form fields ── */
+    .at-field { display: flex; flex-direction: column; gap: 6px; }
+    .at-field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(17,34,17,.6);
+      letter-spacing: .3px;
+      text-transform: uppercase;
+    }
+    .at-field label .at-req { color: #e05252; margin-left: 2px; }
+    .at-field select,
+    .at-field input {
+      width: 100%;
+      min-height: 46px;
+      border: 1.5px solid #d0e8df;
+      border-radius: 12px;
+      padding: 0 14px;
+      font-size: 14px;
+      font-family: inherit;
+      background: #fff;
+      color: #112212;
+      outline: none;
+      transition: border-color .2s;
+      box-sizing: border-box;
+    }
+    .at-field select:focus,
+    .at-field input:focus { border-color: #1a7a4a; box-shadow: 0 0 0 3px rgba(26,122,74,.10); }
+    .at-field select:disabled,
+    .at-field input:disabled { background: #f5f9f6; color: rgba(17,34,17,.35); cursor: not-allowed; }
+
+    /* ── Notice ── */
+    .at-notice {
+      background: #f0f8f3;
+      border: 1px solid #c3e0cc;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: rgba(17,34,17,.65);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .at-notice i { color: #1a7a4a; margin-top: 1px; flex-shrink: 0; }
+
+    /* ── Sticky bar ── */
+    .at-sticky-bar {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,.96);
+      backdrop-filter: blur(10px);
+      border-top: 1.5px solid #d5ead8;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+    }
+    .at-sticky-bar__inner {
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .at-error-msg {
+      flex: 1;
+      font-size: 13px;
+      color: #c0392b;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body class="landing-page app-page">
+
+  <!-- NavBar -->
+  <nav class="elite-nav" role="navigation" aria-label="Main navigation">
+    <div class="elite-nav__container">
+      <a class="elite-nav__brand elite-brand" href="../index.html" aria-label="Elite Transport Home">
+        <div class="elite-brand__logo">
+          <img class="elite-brand__mark" src="../assets/logo.avif" alt="Elite Transport logo" />
+        </div>
+        <span class="elite-brand__name">Elite Transport</span>
+      </a>
+      <div class="elite-nav__actions">
+        <span id="at-admin-name" style="font-size:13px;font-weight:600;color:#1a7a4a;"></span>
+        <a href="./app.html" class="app-btn app-btn--ghost app-btn--sm">
+          <i class="fa-solid fa-arrow-left"></i> Dashboard
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page body -->
+  <main class="at-page">
+    <!-- Breadcrumb -->
+    <nav class="at-breadcrumb" aria-label="Breadcrumb">
+      <a href="./app.html">Dashboard</a>
+      <span class="at-breadcrumb__sep"><i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></span>
+      <a href="./app.html?tab=trips">Trips</a>
+      <span class="at-breadcrumb__sep"><i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></span>
+      <span class="at-breadcrumb__current">Add Trip</span>
+    </nav>
+
+    <h1 class="at-page__title">Add Trip</h1>
+    <p class="at-page__sub">Create a new trip by selecting a route and bus. The trip will go live immediately.</p>
+
+    <!-- Section 1: Route & Bus -->
+    <div class="at-card">
+      <div class="at-card__title">
+        <i class="fa-solid fa-route"></i> Route &amp; Bus
+      </div>
+      <div class="at-grid-2">
+        <div class="at-field">
+          <label for="nt-route">Route <span class="at-req">*</span></label>
+          <select id="nt-route">
+            <option value="">Loading routes…</option>
+          </select>
+        </div>
+        <div class="at-field">
+          <label for="nt-bus">Bus <span class="at-req">*</span></label>
+          <select id="nt-bus" disabled>
+            <option value="">Select route first</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:14px;">
+        <div class="at-notice">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>Select a route to filter available buses. A bus already assigned to an active trip cannot be reused until that trip ends.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Schedule & Pricing -->
+    <div class="at-card">
+      <div class="at-card__title">
+        <i class="fa-solid fa-calendar-days"></i> Schedule &amp; Pricing
+      </div>
+      <div class="at-grid-2">
+        <div class="at-field">
+          <label for="nt-date">Departure Date</label>
+          <input type="date" id="nt-date" />
+        </div>
+        <div class="at-field">
+          <label for="nt-time">Departure Time</label>
+          <input type="time" id="nt-time" />
+        </div>
+        <div class="at-field">
+          <label for="nt-price">Ticket Price (GHS)</label>
+          <input type="number" id="nt-price" min="0" step="0.01" placeholder="e.g. 45.00" />
+        </div>
+        <div class="at-field">
+          <label for="nt-operator">Operator</label>
+          <select id="nt-operator">
+            <option value="">Auto-detect from bus</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:4px;">
+        <p style="font-size:12px;color:rgba(17,34,17,.45);margin:0;">
+          Price defaults to the bus's configured price if left blank. Operator is inferred from the bus owner.
+        </p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Sticky submit bar -->
+  <div class="at-sticky-bar">
+    <div class="at-sticky-bar__inner">
+      <button id="at-submit-btn" class="app-btn app-btn--primary" onclick="submitTrip()">
+        <i class="fa-solid fa-check"></i> Create trip
+      </button>
+      <a href="./app.html?tab=trips" class="app-btn app-btn--ghost">Cancel</a>
+      <span id="at-error-msg" class="at-error-msg"></span>
+    </div>
+  </div>
+
+  <script src="../supabase-config.js"></script>
+  <script src="./add-trip.js?v=1"></script>
+</body>
+</html>

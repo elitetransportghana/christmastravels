@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin · Elite Transport</title>
+  <link rel="stylesheet" href="../style.css?v=11" />
+  <link rel="stylesheet" href="../landing.css?v=15" />
+  <link rel="stylesheet" href="../find-bus.css?v=8" />
+  <link rel="stylesheet" href="../checkout.css?v=10" />
+  <link rel="stylesheet" href="../dashboard-booking.css" />
+  <link rel="stylesheet" href="./app.css?v=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+</head>
+<body class="landing-page app-page">
+
+  <!-- ════ Navbar (mirrors checkout.html) ════ -->
+  <nav class="navbar landing-navbar">
+    <div class="container landing-navbar__shell">
+      <a href="../index.html" class="elite-brand elite-brand--mobile">
+        <span class="elite-brand__mark">
+          <img src="../ELITE TRANSPORT.png" alt="Elite Transport" />
+        </span>
+      </a>
+      <button class="nav-toggle landing-nav-toggle" aria-label="Toggle navigation"
+              onclick="this.closest('nav').querySelector('[data-nav-panel]').classList.toggle('is-open')">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="landing-navbar__panel" id="admin-app-nav" data-nav-panel>
+        <ul class="nav-links landing-nav-links">
+          <li><a href="../search.html" class="landing-nav-links__link">Find Bus</a></li>
+          <li><a href="https://elitetransportghana.com/ticket.html" class="landing-nav-links__link" target="_blank" rel="noopener">Tickets</a></li>
+          <li><a href="./index.html" class="landing-nav-links__link">Analytics</a></li>
+        </ul>
+        <a href="../index.html" class="elite-brand elite-brand--desktop">
+          <span class="elite-brand__mark">
+            <img src="../ELITE TRANSPORT.png" alt="Elite Transport" />
+          </span>
+        </a>
+        <div class="landing-auth">
+          <span id="app-admin-name" class="landing-auth__link" style="pointer-events:none;opacity:.72;font-weight:600;"></span>
+          <button class="landing-auth__button" id="app-admin-logout">Sign out</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+
+  <div class="app-shell">
+
+    <!-- ════ Tab strip ════ -->
+    <nav class="app-tab-strip app-tabs-5" role="tablist" id="admin-tab-strip">
+      <button class="app-tab-btn is-active" data-tab="book"        role="tab" aria-selected="true">
+        <i class="fa-solid fa-ticket"></i>
+        <span class="app-tab-label">Book</span>
+      </button>
+      <button class="app-tab-btn" data-tab="passengers" role="tab" aria-selected="false">
+        <i class="fa-solid fa-users"></i>
+        <span class="app-tab-label">Passengers</span>
+      </button>
+      <button class="app-tab-btn" data-tab="trips"      role="tab" aria-selected="false">
+        <i class="fa-solid fa-bus"></i>
+        <span class="app-tab-label">Trips</span>
+      </button>
+      <button class="app-tab-btn" data-tab="operators"  role="tab" aria-selected="false">
+        <i class="fa-solid fa-building"></i>
+        <span class="app-tab-label">Operators</span>
+      </button>
+      <button class="app-tab-btn" data-tab="commissions" role="tab" aria-selected="false">
+        <i class="fa-solid fa-coins"></i>
+        <span class="app-tab-label">Commissions</span>
+      </button>
+    </nav>
+
+    <!-- ════ BOOK panel ════ -->
+    <div id="panel-book" class="app-tab-panel is-active">
+      <div class="app-section-head">
+        <div>
+          <h2>Book a Ticket</h2>
+          <p>Internal booking desk — cash, MoMo, or card</p>
+        </div>
+      </div>
+      <div id="admin-booking-desk">
+        <!-- DashboardBookingDesk mounts here -->
+        <div class="app-empty"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading booking desk…</p></div>
+      </div>
+    </div>
+
+    <!-- ════ PASSENGERS panel ════ -->
+    <div id="panel-passengers" class="app-tab-panel">
+      <div class="app-section-head">
+        <div>
+          <h2>Passengers</h2>
+          <p id="pax-summary-text">Filter by trip to view passengers</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="app-btn app-btn--ghost app-btn--sm" id="pax-select-all-btn" style="display:none;">
+            <i class="fa-solid fa-check-double"></i> Select all
+          </button>
+          <button class="app-btn app-btn--primary app-btn--sm" id="pax-sms-btn" style="display:none;">
+            <i class="fa-solid fa-comment-dots"></i> SMS selected
+          </button>
+          <button class="app-btn app-btn--ghost app-btn--sm" id="pax-refresh-btn">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="app-filter-strip">
+        <select id="pax-route-filter" style="min-width:200px;">
+          <option value="">All routes</option>
+        </select>
+        <input type="date" id="pax-date-from" title="From date" />
+        <input type="date" id="pax-date-to" title="To date" />
+        <select id="pax-status-filter">
+          <option value="">All statuses</option>
+          <option value="boarded">Boarded</option>
+          <option value="pending">Pending</option>
+        </select>
+        <input type="search" id="pax-search" placeholder="Search name / phone…" style="min-width:180px;" />
+        <button class="app-btn app-btn--primary app-btn--sm" id="pax-apply-filter">
+          <i class="fa-solid fa-filter"></i> Apply
+        </button>
+      </div>
+
+      <!-- Passenger list -->
+      <div id="pax-list" class="app-pax-list">
+        <div class="app-empty"><i class="fa-solid fa-users"></i><p>Use the filters above to load passengers.</p></div>
+      </div>
+      <div id="pax-pagination" class="app-pagination" style="display:none;"></div>
+    </div>
+
+    <!-- ════ TRIPS panel ════ -->
+    <div id="panel-trips" class="app-tab-panel">
+      <div class="app-section-head">
+        <div>
+          <h2>Trips</h2>
+          <p id="trips-summary-text">Active and recent trips</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <a href="./add-trip.html" class="app-btn app-btn--primary app-btn--sm">
+            <i class="fa-solid fa-plus"></i> Add Trip
+          </a>
+          <button class="app-btn app-btn--ghost app-btn--sm" id="trips-refresh-btn">
+            <i class="fa-solid fa-rotate-right"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI strip -->
+      <div class="app-kpi-strip" id="trips-kpi-strip" style="display:none;">
+        <div class="app-kpi-card">
+          <div class="app-kpi-card__label">Active Trips</div>
+          <div class="app-kpi-card__value" id="kpi-active-trips">—</div>
+        </div>
+        <div class="app-kpi-card">
+          <div class="app-kpi-card__label">Total Booked</div>
+          <div class="app-kpi-card__value" id="kpi-total-booked">—</div>
+        </div>
+        <div class="app-kpi-card">
+          <div class="app-kpi-card__label">Revenue Today</div>
+          <div class="app-kpi-card__value" id="kpi-revenue">—</div>
+        </div>
+        <div class="app-kpi-card">
+          <div class="app-kpi-card__label">Avg Occupancy</div>
+          <div class="app-kpi-card__value" id="kpi-occupancy">—</div>
+        </div>
+      </div>
+
+      <div class="app-trips-layout">
+        <!-- Filter sidebar reusing findbus-filters style -->
+        <aside>
+          <div class="findbus-filters">
+            <div class="findbus-filters__head">
+              <span class="findbus-filters__title">Filter trips</span>
+            </div>
+            <div class="findbus-filters__block">
+              <label class="findbus-filters__label">Route</label>
+              <select id="trip-route-filter" class="app-form-field select" style="width:100%;min-height:44px;border:1.5px solid #d0e8df;border-radius:12px;padding:0 14px;font-family:inherit;font-size:13px;background:#fff;outline:none;">
+                <option value="">All routes</option>
+              </select>
+            </div>
+            <div class="findbus-filters__block">
+              <label class="findbus-filters__label">Status</label>
+              <div class="findbus-filters__checks">
+                <label class="findbus-filters__check"><input type="checkbox" name="trip-status" value="active" checked /><span>Active</span></label>
+                <label class="findbus-filters__check"><input type="checkbox" name="trip-status" value="completed" /><span>Completed</span></label>
+                <label class="findbus-filters__check"><input type="checkbox" name="trip-status" value="cancelled" /><span>Cancelled</span></label>
+              </div>
+            </div>
+            <div class="findbus-filters__block">
+              <label class="findbus-filters__label">Operator</label>
+              <select id="trip-operator-filter" style="width:100%;min-height:44px;border:1.5px solid #d0e8df;border-radius:12px;padding:0 14px;font-family:inherit;font-size:13px;background:#fff;outline:none;">
+                <option value="">All operators</option>
+              </select>
+            </div>
+            <button class="app-btn app-btn--primary" id="trip-apply-filter" style="width:100%;margin-top:8px;">
+              <i class="fa-solid fa-filter"></i> Apply
+            </button>
+          </div>
+        </aside>
+        <!-- Trip cards -->
+        <div>
+          <div id="trips-active-section">
+            <h3 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(17,34,17,.45);margin:0 0 12px;">Active</h3>
+            <div id="trips-active-list" class="app-trip-list">
+              <div class="app-empty"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading trips…</p></div>
+            </div>
+          </div>
+          <div id="trips-recent-section" style="margin-top:28px;">
+            <h3 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(17,34,17,.45);margin:0 0 12px;">Recent</h3>
+            <div id="trips-recent-list" class="app-trip-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ OPERATORS panel ════ -->
+    <div id="panel-operators" class="app-tab-panel">
+      <div class="app-section-head">
+        <div>
+          <h2>Operators</h2>
+          <p id="operators-summary-text">Manage transport operators</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="op-status-filter" style="min-height:40px;border:1.5px solid #d0e8df;border-radius:10px;padding:0 12px;font-family:inherit;font-size:13px;background:#fff;outline:none;">
+            <option value="">All</option>
+            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+            <option value="suspended">Suspended</option>
+          </select>
+          <button class="app-btn app-btn--ghost app-btn--sm" id="operators-refresh-btn">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+      </div>
+      <div id="operators-grid" class="app-operators-grid">
+        <div class="app-empty"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading operators…</p></div>
+      </div>
+    </div>
+
+    <!-- ════ COMMISSIONS panel ════ -->
+    <div id="panel-commissions" class="app-tab-panel">
+      <div class="app-section-head">
+        <div>
+          <h2>Commissions</h2>
+          <p id="commissions-summary-text">Platform earnings from each operator</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="date" id="comm-date-from" />
+          <input type="date" id="comm-date-to" />
+          <button class="app-btn app-btn--primary app-btn--sm" id="comm-apply-filter">
+            <i class="fa-solid fa-filter"></i> Apply
+          </button>
+          <button class="app-btn app-btn--ghost app-btn--sm" id="comm-refresh-btn">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI strip -->
+      <div class="app-kpi-strip" id="comm-kpi-strip" style="display:none;">
+        <div class="app-kpi-card">
+          <div class="app-kpi-card__label">Total Commission</div>
+          <div class="app-kpi-card__value" id="kpi-comm-total">—</div>
+        </div>
+        <div class="app-kpi-card">
+          <div class="app-kpi-card__label">Transactions</div>
+          <div class="app-kpi-card__value" id="kpi-comm-count">—</div>
+        </div>
+        <div class="app-kpi-card">
+          <div class="app-kpi-card__label">Avg Rate</div>
+          <div class="app-kpi-card__value" id="kpi-comm-rate">—</div>
+        </div>
+      </div>
+
+      <div class="app-table-card">
+        <table id="commissions-table">
+          <thead>
+            <tr>
+              <th>Operator</th>
+              <th>Route</th>
+              <th>Date</th>
+              <th>Bookings</th>
+              <th>Gross</th>
+              <th>Rate</th>
+              <th>Commission</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="commissions-tbody">
+            <tr><td colspan="8" style="text-align:center;padding:40px;color:rgba(17,34,17,.4);">
+              <i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Loading…
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="comm-pagination" class="app-pagination" style="display:none;"></div>
+    </div>
+
+  </div><!-- /.app-shell -->
+
+  <!-- ════ Bulk SMS compose bar ════ -->
+  <div class="app-compose-bar" id="compose-bar" role="complementary" aria-label="SMS composer">
+    <button class="app-compose-bar__close" id="compose-close" aria-label="Close">&times;</button>
+    <div class="app-compose-bar__inner">
+      <div style="flex-shrink:0;">
+        <div class="app-compose-bar__label">
+          To: <span class="app-compose-bar__count" id="compose-count">0</span> passengers
+        </div>
+      </div>
+      <textarea class="app-compose-bar__textarea" id="compose-text"
+                placeholder="Type your message…" maxlength="480" rows="2"></textarea>
+      <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
+        <button class="app-btn app-btn--primary" id="compose-send-btn">
+          <i class="fa-solid fa-paper-plane"></i> Send
+        </button>
+        <span id="compose-char" style="font-size:11px;color:rgba(17,34,17,.45);text-align:right;"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Receipt Modal -->
+  <div id="app-receipt-modal" class="app-receipt-modal" hidden>
+    <div class="app-receipt-modal__box">
+      <div class="app-receipt-modal__head">
+        <span id="app-receipt-modal-title" class="app-receipt-modal__title">Booking Receipt</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <a id="app-receipt-modal-open-btn" href="#" target="_blank" rel="noopener" class="app-btn app-btn--primary app-btn--sm">
+            <i class="fa-solid fa-print"></i> Print / Download
+          </a>
+          <button class="app-btn app-btn--ghost app-btn--sm" onclick="adminApp.closeReceiptModal()" aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+      <iframe id="app-receipt-modal-iframe" src="" class="app-receipt-modal__frame" title="Booking Receipt" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="app-toast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:opacity .2s,transform .2s;background:#112211;color:#fff;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;pointer-events:none;max-width:340px;text-align:center;"></div>
+
+  <script src="../supabase-config.js"></script>
+  <script src="../dashboard-booking.js"></script>
+  <script src="./app.js?v=1"></script>
+</body>
+</html>

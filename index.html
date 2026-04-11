@@ -1,198 +1,789 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Elite Transport — Booking Update</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f6fb;
-      color: #111827;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 14px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    }
-
-    h2 {
-      text-align: center;
-      color: #0f172a;
-      margin-bottom: 20px;
-    }
-
-    p {
-      font-size: 15px;
-      line-height: 1.7;
-    }
-
-    ul {
-      padding-left: 20px;
-      margin-bottom: 20px;
-    }
-
-    li {
-      margin-bottom: 8px;
-      font-size: 15px;
-    }
-
-    .notice {
-      background: #fef3c7;
-      border-left: 5px solid #f59e0b;
-      padding: 15px;
-      border-radius: 8px;
-      margin: 25px 0;
-    }
-
-    .warning {
-      background: #fee2e2;
-      border-left: 5px solid #ef4444;
-      padding: 15px;
-      border-radius: 8px;
-      margin: 25px 0;
-    }
-
-    a {
-      color: #0ea5a4;
-      font-weight: bold;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    footer {
-      margin-top: 40px;
-      background: #0f172a;
-      color: #e5e7eb;
-      padding: 25px 20px;
-      border-radius: 14px;
-    }
-
-    .footer-content {
-      max-width: 800px;
-      margin: auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-    }
-
-    footer h3 {
-      color: #22d3ee;
-      font-size: 15px;
-      margin-bottom: 10px;
-    }
-
-    footer p {
-      font-size: 14px;
-      line-height: 1.6;
-      color: #d1d5db;
-    }
-
-    .footer-bottom {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 13px;
-      color: #9ca3af;
-      border-top: 1px solid #1f2937;
-      padding-top: 12px;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#1e3a5f" />
+  <title>Elite Transport | Marketplace Admin</title>
+  <link rel="stylesheet" href="../style.css?v=11" />
+  <link rel="stylesheet" href="../landing.css?v=15" />
+  <link rel="stylesheet" href="../find-bus.css?v=8" />
+  <link rel="stylesheet" href="../checkout.css?v=10" />
+  <link rel="stylesheet" href="../dashboard-booking.css?v=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" />
+  <link rel="stylesheet" href="./admin.css?v=7" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
+<body class="landing-page admin-page">
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__header">
+        <a href="../index.html" class="admin-sidebar__brand" aria-label="Elite Transport home">
+          <span class="admin-sidebar__brand-mark">
+            <img src="../ELITE TRANSPORT.png" alt="Elite Transport" />
+          </span>
+          <span class="admin-sidebar__brand-copy">
+            <strong>Elite Transport</strong>
+            <span>Marketplace Admin</span>
+          </span>
+        </a>
+      </div>
 
-<body>
+      <section class="admin-sidebar__section" aria-label="Primary admin navigation">
+        <span class="admin-sidebar__label">Governance</span>
+        <nav class="admin-sidebar__nav" aria-label="Admin sections">
+          <button class="admin-side-nav__item active" data-tab="overview" type="button"><i class="fa-solid fa-chart-pie"></i><span>Overview</span></button>
+          <button class="admin-side-nav__item" data-tab="bookings" type="button"><i class="fa-solid fa-ticket"></i><span>Bookings</span></button>
+          <button class="admin-side-nav__item" data-tab="trips" type="button"><i class="fa-solid fa-route"></i><span>Trips</span></button>
+          <button class="admin-side-nav__item" data-tab="reference" type="button"><i class="fa-solid fa-database"></i><span>Reference</span></button>
+          <button class="admin-side-nav__item" data-tab="operators" type="button"><i class="fa-solid fa-building"></i><span>Operators</span></button>
+          <button class="admin-side-nav__item" data-tab="commissions" type="button"><i class="fa-solid fa-coins"></i><span>Commissions</span></button>
+        </nav>
+      </section>
 
-  <div class="container">
-    <h2>📢 ELITE TRANSPORT — IMPORTANT BOOKING UPDATE</h2>
+      <section class="admin-sidebar__summary" aria-label="Admin scope summary">
+        <span class="admin-sidebar__summary-eyebrow">Scope</span>
+        <strong>Payments, onboarding, reference data, and commissions stay under platform control.</strong>
+        <p>Trips are now visible here for platform oversight, while trip edits, check-in, and notifications remain inside each operator workspace.</p>
+      </section>
+    </aside>
 
-    <p><strong>Available Routes & Dates:</strong></p>
-    <ul>
-      <li>Sunyani — 20th & 21st December</li>
-      <li>Kumasi — 21st December</li>
-      <li>Accra — 20th & 21st December</li>
-    </ul>
+    <div class="admin-workspace">
+      <header class="admin-topbar">
+        <div class="admin-topbar__title-group">
+          <span class="admin-topbar__eyebrow">Marketplace governance</span>
+          <div class="admin-topbar__title">Platform Control Room</div>
+        </div>
 
-    <div class="notice">
-      <p><strong>⚠️ BOOKING NOTICE</strong></p>
-      <p>
-        All bookings from now must be done via WhatsApp only:
-      </p>
-      <ul>
-        <li><a href="https://wa.me/233539431256">053 943 1256</a></li>
-        <li><a href="https://wa.me/233541675366">054 167 5366</a></li>
-      </ul>
+        <div class="admin-topbar__actions">
+          <span class="admin-topbar__pill admin-topbar__pill--live">System online</span>
+          <span class="admin-topbar__pill admin-topbar__pill--profile" id="admin-user-chip">Loading admin profile...</span>
+          <span class="admin-navbar__chip" id="admin-sync-chip">Syncing dashboard...</span>
+          <a id="back-link" class="admin-topbar__link" href="../index.html">Back to App</a>
+          <button type="button" class="admin-navbar__logout" id="admin-logout-btn" title="Sign out"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+      </header>
+
+      <main class="admin-main">
+        <section class="container admin-page-summary">
+          <div class="admin-page-summary__intro">
+            <span class="admin-card__eyebrow">Overview</span>
+            <h1>Marketplace overview</h1>
+            <p id="admin-meta">Loading dashboard snapshot...</p>
+          </div>
+          <div class="admin-page-summary__signals">
+            <span class="admin-page-summary__signal">Operator onboarding</span>
+            <span class="admin-page-summary__signal">Commission control</span>
+            <span class="admin-page-summary__signal">Reference integrity</span>
+          </div>
+        </section>
+
+        <section class="container admin-kpi-strip" aria-label="Marketplace metrics">
+          <article class="admin-kpi">
+            <span class="admin-kpi__icon"><i class="fa-solid fa-ticket"></i></span>
+            <div class="admin-kpi__content">
+              <span>Bookings in view</span>
+              <strong id="m-total-bookings">-</strong>
+            </div>
+          </article>
+          <article class="admin-kpi">
+            <span class="admin-kpi__icon admin-kpi__icon--blue"><i class="fa-solid fa-road"></i></span>
+            <div class="admin-kpi__content">
+              <span>Routes</span>
+              <strong id="m-total-routes">-</strong>
+            </div>
+          </article>
+          <article class="admin-kpi">
+            <span class="admin-kpi__icon admin-kpi__icon--amber"><i class="fa-solid fa-bus"></i></span>
+            <div class="admin-kpi__content">
+              <span>Buses</span>
+              <strong id="m-total-buses">-</strong>
+            </div>
+          </article>
+          <article class="admin-kpi">
+            <span class="admin-kpi__icon admin-kpi__icon--violet"><i class="fa-solid fa-coins"></i></span>
+            <div class="admin-kpi__content">
+              <span>Revenue (GHS)</span>
+              <strong id="m-total-revenue">-</strong>
+            </div>
+          </article>
+        </section>
+
+        <section class="container admin-content">
+      <section class="tab-panel active" data-panel="overview">
+        <div class="admin-overview-grid">
+          <section class="card admin-card admin-card--primary">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Marketplace pulse</span>
+                <h2>Upcoming bookings and revenue snapshot</h2>
+              </div>
+              <span class="admin-card__badge">Live admin feed</span>
+            </div>
+            <p class="admin-section-copy">Monitor marketplace volume first, then drop into operator governance and payout actions only when the data tells you to.</p>
+            <p id="admin-overview-copy" class="meta">Filter upcoming trips, watch revenue move, and spot the routes that need attention.</p>
+            <form id="filters-form" class="filters admin-filters">
+              <label>Route<select id="f-route"><option value="">All routes</option></select></label>
+              <label>Date From<input id="f-date-from" type="date" /></label>
+              <label>Date To<input id="f-date-to" type="date" /></label>
+              <label>Status
+                <select id="f-status">
+                  <option value="">All active</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="pending">Pending</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </label>
+              <div class="filter-actions">
+                <button type="submit">Apply</button>
+                <button type="button" id="reset-filters" class="btn-light">Reset</button>
+              </div>
+            </form>
+            <div class="admin-overview-note-strip">Use the route, date, and status filters to narrow the public marketplace view before drilling into operators, passengers, or settlement activity.</div>
+          </section>
+
+          <aside class="card admin-card admin-card--side">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Plan focus</span>
+                <h2>Marketplace guardrails</h2>
+              </div>
+            </div>
+            <div class="admin-notes">
+              <article>
+                <strong>Platform owns</strong>
+                <p>Search, ranking, payments, promotions, and the legal framework stay platform-controlled.</p>
+              </article>
+              <article>
+                <strong>Operators own</strong>
+                <p>Their own fleet, routes, schedules, and support contacts. Everything else is restricted.</p>
+              </article>
+              <article>
+                <strong>Reference data</strong>
+                <p>Dispatch centers and municipalities can now be maintained from inside the admin panel.</p>
+              </article>
+            </div>
+          </aside>
+        </div>
+
+        <section class="admin-dual-grid">
+          <section class="card">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Tenant boundaries</span>
+                <h2>Operational ownership</h2>
+              </div>
+            </div>
+            <div id="overview-active-trips" class="trip-list" data-trip-slot="active"></div>
+          </section>
+
+          <section class="card">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Governance workflow</span>
+                <h2>Where the platform steps in</h2>
+              </div>
+            </div>
+            <div id="overview-recent-trips" class="trip-list" data-trip-slot="recent">Loading...</div>
+          </section>
+        </section>
+      </section>
+
+      <section class="tab-panel" data-panel="bookings">
+        <section class="card admin-card admin-card--primary">
+          <div class="admin-card__head">
+            <div>
+              <span class="admin-card__eyebrow">Internal booking desk</span>
+              <h2>Marketplace-assisted bookings</h2>
+            </div>
+          </div>
+          <p class="admin-section-copy">Search live departures, lock seats, assign passenger names, and confirm cash, MoMo, or card bookings without sending staff through the public checkout flow.</p>
+          <div id="admin-booking-desk"></div>
+        </section>
+
+        <section class="card admin-card">
+          <div class="admin-card__head">
+            <div>
+              <span class="admin-card__eyebrow">Current filtered feed</span>
+              <h2>Bookings in this admin view</h2>
+            </div>
+          </div>
+          <div class="admin-table-shell">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Passenger</th>
+                  <th>Operator</th>
+                  <th>Route</th>
+                  <th>Departure</th>
+                  <th>Seat</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                </tr>
+              </thead>
+              <tbody id="admin-bookings-table-body">
+                <tr><td colspan="7">Loading bookings...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section class="tab-panel" data-panel="manual">
+        <section class="card admin-card">
+          <div class="admin-card__head">
+            <div>
+              <span class="admin-card__eyebrow">Marketplace action</span>
+              <h2>Manual booking (no Paystack)</h2>
+            </div>
+          </div>
+          <div class="manual-booking-layout">
+            <div>
+              <div class="meta">Select route and bus</div>
+              <div id="manual-route-list" class="manual-route-list">Loading routes...</div>
+            </div>
+            <div>
+              <div id="manual-selected-summary" class="manual-summary">No bus selected.</div>
+              <div class="meta" style="margin-top:8px;">Seat map</div>
+              <div id="manual-seatmap" class="admin-seatmap"></div>
+            </div>
+          </div>
+          <form id="manual-form" class="manual-grid admin-form-grid">
+            <input id="m-first" placeholder="First name" required />
+            <input id="m-last" placeholder="Last name" required />
+            <input id="m-email" type="email" placeholder="Email" required />
+            <input id="m-phone" placeholder="Phone" required />
+            <input id="m-nok-name" placeholder="Next of kin name" />
+            <input id="m-nok-phone" placeholder="Next of kin phone" />
+            <input id="m-seat" placeholder="Selected seat" readonly required />
+            <input id="m-price" type="number" min="0" step="0.01" placeholder="Price paid (optional)" />
+            <button type="submit">Create Booking</button>
+          </form>
+        </section>
+      </section>
+
+      <section class="tab-panel" data-panel="fleet">
+        <div class="admin-overview-grid">
+          <section class="card admin-card admin-card--primary">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Fleet setup</span>
+                <h2>Add a new bus</h2>
+              </div>
+            </div>
+            <form id="add-bus-form" class="manual-grid admin-form-grid">
+              <input id="b-name" placeholder="Bus name" required />
+              <input id="b-plate" placeholder="Plate number" />
+              <select id="b-route" required><option value="">Select route</option></select>
+              <input id="b-capacity" type="number" min="1" placeholder="Capacity" required />
+              <input id="b-available" type="number" min="0" placeholder="Seats available" />
+              <input id="b-price" type="number" min="0" step="0.01" placeholder="Default price" />
+              <input id="b-amenities" placeholder="Amenities (comma-separated: AC, WiFi, USB)" />
+              <button type="submit">Add Bus</button>
+            </form>
+          </section>
+
+          <aside class="card admin-card admin-card--side">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Fleet snapshot</span>
+                <h2>Current buses</h2>
+              </div>
+              <span class="pill" id="fleet-count-pill">0 buses</span>
+            </div>
+            <div id="fleet-list" class="fleet-list">Loading fleet...</div>
+          </aside>
+        </div>
+
+        <!-- Edit Bus Modal -->
+        <div class="admin-modal-backdrop" id="edit-bus-modal" hidden>
+          <div class="admin-modal">
+            <div class="admin-modal__head">
+              <h3>Edit Bus</h3>
+              <button type="button" class="admin-modal__close" data-close-modal="edit-bus-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="edit-bus-form" class="admin-form-grid" style="grid-template-columns: 1fr 1fr;">
+              <input type="hidden" id="eb-id" />
+              <input id="eb-name" placeholder="Bus name" required />
+              <input id="eb-plate" placeholder="Plate number" />
+              <select id="eb-route" required><option value="">Select route</option></select>
+              <input id="eb-capacity" type="number" min="1" placeholder="Capacity" required />
+              <input id="eb-available" type="number" min="0" placeholder="Seats available" />
+              <input id="eb-price" type="number" min="0" step="0.01" placeholder="Default price" />
+              <input id="eb-amenities" placeholder="Amenities (comma-separated)" style="grid-column: 1/-1;" />
+              <button type="submit" style="grid-column: 1/-1;">Save Changes</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" data-panel="trips">
+        <div class="admin-overview-grid" hidden>
+          <section class="card admin-card admin-card--primary">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Trip assignment</span>
+                <h2>Create a new trip</h2>
+              </div>
+            </div>
+            <form id="create-trip-form" class="manual-grid admin-form-grid">
+              <select id="t-route" required><option value="">Select route</option></select>
+              <select id="t-bus" required><option value="">Select available bus</option></select>
+              <input id="t-date" type="date" />
+              <input id="t-time" type="time" />
+              <input id="t-price" type="number" min="0" step="0.01" placeholder="Trip price (optional)" />
+              <select id="t-cancel-policy">
+                <option value="flexible">Flexible cancellation</option>
+                <option value="moderate">Moderate (24h before)</option>
+                <option value="strict">Strict (non-refundable)</option>
+              </select>
+              <input id="t-luggage" placeholder="Luggage policy (e.g. 1 bag + 1 carry-on)" />
+              <textarea id="t-description" placeholder="Trip description (optional)" rows="2" style="grid-column: 1/-1;"></textarea>
+              <textarea id="t-instructions" placeholder="Departure instructions (e.g. Report 30 mins early at...)" rows="2" style="grid-column: 1/-1;"></textarea>
+              <button type="submit">Create Trip</button>
+            </form>
+          </section>
+
+          <aside class="card admin-card admin-card--side">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Trip policies</span>
+                <h2>Trip control</h2>
+              </div>
+            </div>
+            <div class="admin-notes">
+              <article>
+                <strong>Cancellation policies</strong>
+                <p><strong>Flexible</strong> — Full refund anytime. <strong>Moderate</strong> — Full refund if cancelled 24h before. <strong>Strict</strong> — Non-refundable.</p>
+              </article>
+              <article>
+                <strong>Rest stops</strong>
+                <p>Add rest/food stops to any trip from the trip's action menu. Passengers see stops on their ticket.</p>
+              </article>
+              <article>
+                <strong>SMS notifications</strong>
+                <p>Send departure reminders, delay notices, or cancellation messages to trip passengers from the SMS Center tab.</p>
+              </article>
+            </div>
+          </aside>
+        </div>
+
+        <section class="card admin-card">
+          <div class="admin-card__head">
+            <div>
+              <span class="admin-card__eyebrow">Read-only oversight</span>
+              <h2>Trips across the marketplace</h2>
+            </div>
+          </div>
+          <p class="meta">Review live and recent trips, assigned drivers, passenger load, boarding progress, payment mix, and revenue without changing operator-owned operations.</p>
+          <div class="manifest-stats" id="admin-trip-summary">
+            <article class="metric"><span>Active trips</span><strong id="at-active">—</strong></article>
+            <article class="metric"><span>Visible trips</span><strong id="at-visible">—</strong></article>
+            <article class="metric"><span>Booked passengers</span><strong id="at-booked">—</strong></article>
+            <article class="metric"><span>Boarded</span><strong id="at-boarded">—</strong></article>
+            <article class="metric"><span>Revenue</span><strong id="at-revenue">—</strong></article>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="admin-card__head">
+            <div>
+              <span class="admin-card__eyebrow">Operations</span>
+              <h2>Live trips</h2>
+            </div>
+          </div>
+          <div id="active-trips" class="trip-list"></div>
+        </section>
+
+        <section class="card">
+          <div class="admin-card__head">
+            <div>
+              <span class="admin-card__eyebrow">Archive</span>
+              <h2>Recent trips</h2>
+            </div>
+          </div>
+          <div id="recent-trips" class="trip-list">Loading...</div>
+        </section>
+
+        <section class="card admin-card">
+          <div class="admin-card__head">
+            <div>
+              <span class="admin-card__eyebrow">Passenger roster</span>
+              <h2>Trip manifest overview</h2>
+            </div>
+            <div class="manifest-trip-selector">
+              <select id="manifest-trip-select"><option value="">Select a trip</option></select>
+              <button type="button" id="manifest-refresh-btn" class="btn-light"><i class="fa-solid fa-arrows-rotate"></i></button>
+            </div>
+          </div>
+
+          <div class="manifest-stats" id="manifest-stats">
+            <article class="metric"><span>Confirmed</span><strong id="ms-confirmed">—</strong></article>
+            <article class="metric"><span>Boarded</span><strong id="ms-boarded">—</strong></article>
+            <article class="metric"><span>Capacity</span><strong id="ms-capacity">—</strong></article>
+            <article class="metric"><span>Remaining</span><strong id="ms-remaining">—</strong></article>
+          </div>
+
+          <div id="manifest-passengers" class="manifest-passenger-list">
+            <div class="meta">Select a trip to view the manifest.</div>
+          </div>
+        </section>
+
+        <!-- Edit Trip Modal -->
+        <div class="admin-modal-backdrop" id="edit-trip-modal" hidden>
+          <div class="admin-modal" style="max-width: 640px;">
+            <div class="admin-modal__head">
+              <h3>Edit Trip Details</h3>
+              <button type="button" class="admin-modal__close" data-close-modal="edit-trip-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="edit-trip-form" class="admin-form-grid" style="grid-template-columns: 1fr 1fr;">
+              <input type="hidden" id="et-id" />
+              <input id="et-date" type="date" />
+              <input id="et-time" type="time" />
+              <input id="et-price" type="number" min="0" step="0.01" placeholder="Price" />
+              <select id="et-cancel-policy">
+                <option value="flexible">Flexible cancellation</option>
+                <option value="moderate">Moderate (24h before)</option>
+                <option value="strict">Strict (non-refundable)</option>
+              </select>
+              <input id="et-luggage" placeholder="Luggage policy" style="grid-column: 1/-1;" />
+              <textarea id="et-description" placeholder="Trip description" rows="2" style="grid-column: 1/-1;"></textarea>
+              <textarea id="et-instructions" placeholder="Departure instructions" rows="2" style="grid-column: 1/-1;"></textarea>
+              <div style="grid-column: 1/-1; border-top: 1px solid rgba(17,34,17,0.06); padding-top: 14px;">
+                <div class="admin-card__eyebrow" style="margin-bottom: 8px;">Reschedule (optional)</div>
+              </div>
+              <input id="et-revised-date" type="date" placeholder="New date" />
+              <input id="et-revised-time" type="time" placeholder="New time" />
+              <button type="submit" style="grid-column: 1/-1;">Save Changes</button>
+            </form>
+
+            <div style="margin-top: 18px; border-top: 1px solid rgba(17,34,17,0.06); padding-top: 14px;">
+              <div class="admin-card__head" style="margin-bottom: 10px;">
+                <div><span class="admin-card__eyebrow">Rest stops</span><h2 style="font-size:1rem;">Manage rest/food stops</h2></div>
+                <button type="button" class="admin-card__badge admin-card__badge--action" id="add-rest-stop-btn">+ Add Stop</button>
+              </div>
+              <div id="rest-stops-list" class="reference-list" style="max-height: 240px;">No rest stops yet.</div>
+              <form id="add-rest-stop-form" class="admin-form-grid" style="grid-template-columns: 1fr 1fr; margin-top: 10px; display: none;">
+                <input id="rs-name" placeholder="Stop name (e.g. Kumasi Rest Stop)" required />
+                <input id="rs-time" placeholder="Estimated time (e.g. 10:30 AM)" />
+                <input id="rs-duration" type="number" min="5" placeholder="Duration (minutes)" value="15" />
+                <input id="rs-notes" placeholder="Notes (e.g. Food available)" />
+                <button type="submit" style="grid-column: 1/-1;">Add Rest Stop</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cancel Trip Modal -->
+        <div class="admin-modal-backdrop" id="cancel-trip-modal" hidden>
+          <div class="admin-modal">
+            <div class="admin-modal__head">
+              <h3><i class="fa-solid fa-triangle-exclamation" style="color:#991b1b;"></i> Cancel Trip</h3>
+              <button type="button" class="admin-modal__close" data-close-modal="cancel-trip-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="meta" id="cancel-trip-info">This will cancel the trip and notify all confirmed passengers via SMS.</p>
+            <form id="cancel-trip-form" class="admin-form-grid" style="grid-template-columns: 1fr;">
+              <input type="hidden" id="ct-id" />
+              <textarea id="ct-reason" placeholder="Cancellation reason (passengers will see this)" rows="3" required></textarea>
+              <textarea id="ct-message" placeholder="Custom SMS message (optional — leave blank for default)" rows="3"></textarea>
+              <button type="submit" style="background: #991b1b;">Cancel Trip &amp; Notify Passengers</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Verify tab ── -->
+      <section class="tab-panel" data-panel="verify">
+        <div class="admin-overview-grid">
+          <section class="card admin-card admin-card--primary">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Boarding verification</span>
+                <h2>Look up &amp; verify a booking</h2>
+              </div>
+            </div>
+            <form id="verify-form" class="verify-form">
+              <div class="admin-login-field">
+                <label for="verify-ref">Booking reference or scan code</label>
+                <input type="text" id="verify-ref" placeholder="e.g. ELT-ABC123 or 12345678" required />
+              </div>
+              <button type="submit" class="admin-login-submit">Verify Booking</button>
+            </form>
+
+            <div id="verify-result" class="verify-result" hidden>
+              <div class="verify-result__status" id="verify-status"></div>
+              <div class="verify-result__details" id="verify-details"></div>
+              <button type="button" class="admin-login-submit" id="verify-checkin-btn" hidden>
+                <i class="fa-solid fa-check-circle"></i> Mark as Boarded
+              </button>
+            </div>
+          </section>
+
+          <aside class="card admin-card admin-card--side">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">How it works</span>
+                <h2>Scan &amp; verify</h2>
+              </div>
+            </div>
+            <div class="admin-notes">
+              <article>
+                <strong>Barcode scan</strong>
+                <p>Scan the barcode on a passenger's ticket. The numeric code will be used to look up their booking.</p>
+              </article>
+              <article>
+                <strong>Reference lookup</strong>
+                <p>Enter the booking reference (e.g. ELT-ABC123) to verify the passenger's ticket.</p>
+              </article>
+              <article>
+                <strong>Boarding</strong>
+                <p>Once verified, mark the passenger as boarded. This updates the live manifest in real-time.</p>
+              </article>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ── SMS Center tab ── -->
+      <section class="tab-panel" data-panel="sms">
+        <div class="admin-overview-grid">
+          <section class="card admin-card admin-card--primary">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Communications</span>
+                <h2>SMS Center</h2>
+              </div>
+            </div>
+
+            <!-- Send to trip passengers -->
+            <div class="sms-mode-tabs">
+              <button type="button" class="sms-mode-btn active" data-sms-mode="trip">Trip passengers</button>
+              <button type="button" class="sms-mode-btn" data-sms-mode="individual">Individual</button>
+              <button type="button" class="sms-mode-btn" data-sms-mode="announcement">Announcement</button>
+            </div>
+
+            <div class="sms-panel active" data-sms-panel="trip">
+              <form id="sms-trip-form" class="admin-form-grid" style="grid-template-columns: 1fr 1fr;">
+                <select id="sms-trip-select" required style="grid-column:1/-1;"><option value="">Select a trip</option></select>
+                <textarea id="sms-trip-msg" placeholder="Message to all passengers on this trip..." rows="4" required style="grid-column:1/-1;"></textarea>
+                <div style="grid-column: 1/-1; display: flex; gap: 8px; align-items: center;">
+                  <span class="meta" style="margin:0;" id="sms-trip-char-count">0 / 160 chars</span>
+                  <button type="submit" style="margin-left:auto;"><i class="fa-solid fa-paper-plane"></i> Send to All Trip Passengers</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="sms-panel" data-sms-panel="individual">
+              <form id="sms-individual-form" class="admin-form-grid" style="grid-template-columns: 1fr 1fr;">
+                <input id="sms-ind-phone" type="tel" placeholder="Phone number (+233...)" required />
+                <input id="sms-ind-name" placeholder="Recipient name (optional)" />
+                <textarea id="sms-ind-msg" placeholder="Your message..." rows="4" required style="grid-column:1/-1;"></textarea>
+                <button type="submit" style="grid-column: 1/-1;"><i class="fa-solid fa-paper-plane"></i> Send SMS</button>
+              </form>
+            </div>
+
+            <div class="sms-panel" data-sms-panel="announcement">
+              <form id="sms-announce-form" class="admin-form-grid" style="grid-template-columns: 1fr 1fr;">
+                <input id="ann-title" placeholder="Announcement title" required />
+                <select id="ann-target" required>
+                  <option value="all">All confirmed passengers</option>
+                  <option value="trip">Specific trip</option>
+                  <option value="route">Specific route</option>
+                </select>
+                <select id="ann-trip-id" style="display:none;"><option value="">Select trip</option></select>
+                <select id="ann-route-id" style="display:none;"><option value="">Select route</option></select>
+                <textarea id="ann-message" placeholder="Announcement message..." rows="4" required style="grid-column:1/-1;"></textarea>
+                <button type="submit" style="grid-column: 1/-1;"><i class="fa-solid fa-bullhorn"></i> Broadcast Announcement</button>
+              </form>
+            </div>
+          </section>
+
+          <aside class="card admin-card admin-card--side">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">SMS history</span>
+                <h2>Recent messages</h2>
+              </div>
+              <button type="button" class="btn-light" id="sms-refresh-logs"><i class="fa-solid fa-arrows-rotate"></i></button>
+            </div>
+            <div id="sms-logs-list" class="reference-list" style="max-height:520px;">Loading SMS logs...</div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ── Email tab ── -->
+      <section class="tab-panel" data-panel="email">
+        <div class="admin-overview-grid">
+          <section class="card admin-card admin-card--primary">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Email management</span>
+                <h2>Compose &amp; send email</h2>
+              </div>
+            </div>
+            <form id="email-compose-form" class="admin-form-grid" style="grid-template-columns: 1fr 1fr;">
+              <input id="email-to" type="email" placeholder="Recipient email" required />
+              <input id="email-subject" placeholder="Subject" required />
+              <textarea id="email-body" placeholder="Email body..." rows="6" required style="grid-column:1/-1;"></textarea>
+              <button type="submit" style="grid-column: 1/-1;"><i class="fa-solid fa-paper-plane"></i> Send Email</button>
+            </form>
+          </section>
+
+          <aside class="card admin-card admin-card--side">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Inbox</span>
+                <h2>Recent emails</h2>
+              </div>
+              <button type="button" class="btn-light" id="email-refresh-inbox"><i class="fa-solid fa-arrows-rotate"></i></button>
+            </div>
+            <div id="email-inbox-list" class="reference-list" style="max-height:520px;">Loading emails...</div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="tab-panel" data-panel="passengers">
+        <section class="card admin-card">
+          <div class="admin-card__head">
+            <div>
+              <span class="admin-card__eyebrow">Customer view</span>
+              <h2>Passenger details by route</h2>
+            </div>
+          </div>
+          <div id="route-groups" class="route-groups">Loading upcoming bookings...</div>
+        </section>
+      </section>
+
+      <section class="tab-panel" data-panel="reference">
+        <div class="admin-overview-grid">
+          <section class="card admin-card admin-card--primary">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Reference data</span>
+                <h2>Dispatch centers</h2>
+              </div>
+            </div>
+            <form id="dispatch-center-form" class="manual-grid admin-form-grid">
+              <input id="dispatch-center-name" placeholder="Dispatch center name" required />
+              <input id="dispatch-center-region" placeholder="Region (optional)" />
+              <button type="submit">Add Dispatch Center</button>
+            </form>
+            <div id="dispatch-center-list" class="reference-list">Loading dispatch centers...</div>
+          </section>
+
+          <section class="card admin-card admin-card--primary">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Reference data</span>
+                <h2>Municipalities</h2>
+              </div>
+            </div>
+            <form id="municipality-form" class="manual-grid admin-form-grid">
+              <input id="municipality-name" placeholder="Municipality name" required />
+              <input id="municipality-region" placeholder="Region (optional)" />
+              <input id="municipality-capital" placeholder="Capital (optional)" />
+              <button type="submit">Add Municipality</button>
+            </form>
+            <div id="municipality-list" class="reference-list">Loading municipalities...</div>
+          </section>
+        </div>
+      </section>
+
+      <section class="tab-panel" data-panel="operators">
+        <div class="admin-overview-grid">
+          <section class="card admin-card admin-card--primary">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">SaaS marketplace</span>
+                <h2>Operator management</h2>
+              </div>
+              <button id="btn-add-operator" class="admin-card__badge admin-card__badge--action">+ New operator</button>
+            </div>
+            <p class="admin-section-copy">Review onboarding status, marketplace contribution, and support readiness for each operator before changing access.</p>
+            <div id="operators-list" class="operator-grid">Loading operators...</div>
+          </section>
+
+          <aside class="card admin-card admin-card--side">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Onboard operator</span>
+                <h2>Add new operator</h2>
+              </div>
+            </div>
+            <form id="add-operator-form" class="manual-grid admin-form-grid">
+              <input id="op-name" placeholder="Operator name" required />
+              <input id="op-slug" placeholder="URL slug (e.g. vip-jeoun)" required />
+              <input id="op-email" type="email" placeholder="Support email" />
+              <input id="op-phone" placeholder="Support phone" />
+              <input id="op-city" placeholder="City" />
+              <input id="op-region" placeholder="Region" />
+              <input id="op-commission" type="number" min="0" max="1" step="0.01" placeholder="Commission rate (e.g. 0.08)" />
+              <textarea id="op-description" placeholder="Short description" rows="3"></textarea>
+              <button type="submit">Create Operator</button>
+            </form>
+          </aside>
+        </div>
+      </section>
+
+      <section class="tab-panel" data-panel="commissions">
+        <section class="card admin-card">
+          <div class="admin-card__head">
+            <div>
+              <span class="admin-card__eyebrow">Financial</span>
+              <h2>Commission overview</h2>
+            </div>
+          </div>
+          <p class="admin-section-copy">Compare collected fares, platform share, settled payouts, and remaining operator balances in one place.</p>
+          <div id="commissions-summary" class="metric-grid admin-metric-grid">Loading commission data...</div>
+          <div id="commissions-table" class="reference-list" style="margin-top:1.5rem;"></div>
+        </section>
+
+        <div class="admin-overview-grid" style="margin-top:2rem;">
+          <section class="card admin-card admin-card--primary">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">Settlements</span>
+                <h2>Record payout</h2>
+              </div>
+            </div>
+            <form id="payout-form" class="manual-grid admin-form-grid">
+              <select id="pay-operator" required><option value="">Select operator</option></select>
+              <input id="pay-amount" type="number" min="0" step="0.01" placeholder="Payout amount (GHS)" required />
+              <input id="pay-from" type="date" required />
+              <input id="pay-to" type="date" required />
+              <textarea id="pay-notes" placeholder="Notes (optional)" rows="2"></textarea>
+              <button type="submit">Record Payout</button>
+            </form>
+          </section>
+
+          <aside class="card admin-card admin-card--side">
+            <div class="admin-card__head">
+              <div>
+                <span class="admin-card__eyebrow">History</span>
+                <h2>Recent payouts</h2>
+              </div>
+            </div>
+            <div id="payouts-list" class="reference-list">Loading payouts...</div>
+          </aside>
+        </div>
+      </section>
+        </section>
+      </main>
     </div>
-
-    <div class="warning">
-      <p><strong>TAKORADI PASSENGERS</strong></p>
-      <p>
-        There will be <strong>NO bus to Takoradi until Thursday</strong> across all transport companies.
-      </p>
-      <p>
-        Takoradi passengers should <strong>join Kumasi — 21st December</strong>.
-      </p>
-    </div>
-
-    <p>
-      Thank you for your understanding and continued support.
-    </p>
-
-    <p>
-      <strong>Elite Transport</strong><br>
-      Safe • Reliable • Comfortable
-    </p>
   </div>
 
-  <footer>
-    <div class="footer-content">
-
-      <div>
-        <h3>Elite Transport</h3>
-        <p>
-          Providing safe, reliable, and comfortable intercity transport for students and families.
-        </p>
-      </div>
-
-      <div>
-        <h3>Trip Info</h3>
-        <p>
-          📍 Boarding Point: UDS Campus<br>
-          ⏰ Departure Time: 7:00 AM
-        </p>
-      </div>
-
-      <div>
-        <h3>Bookings (WhatsApp)</h3>
-        <p>
-          <a href="https://wa.me/233539431256">053 943 1256</a><br>
-          <a href="https://wa.me/233541675366">054 167 5366</a>
-        </p>
-      </div>
-
-      <div>
-        <h3>Notice</h3>
-        <p>
-          🚫 No Takoradi bus until Thursday.<br>
-          👉 Join <strong>Kumasi — 21st December</strong>.
-        </p>
-      </div>
-
-    </div>
-
-    <div class="footer-bottom">
-      © 2025 Elite Transport • Safe • Reliable • Comfortable <br>
-      Email:elitetransportghana@gmail.com
-    </div>
-  </footer>
-
+  <div id="toast" class="toast"></div>
+  <script>
+    // Auth gate — redirect to admin login if no valid token
+    (function () {
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      if (!token) { window.location.replace('./login.html'); }
+    })();
+  </script>
+  <script src="../dashboard-booking.js?v=1"></script>
+  <script src="./admin.js?v=6"></script>
 </body>
 </html>

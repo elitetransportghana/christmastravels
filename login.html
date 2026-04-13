@@ -298,18 +298,10 @@
     </div>
   </div>
 
-  <script src="../supabase-config.js?v=3"></script>
   <script>
   (function () {
     'use strict';
-    const SUPABASE_CONFIG = window.ELITE_SUPABASE_CONFIG || {};
-    const API = resolveApiOrigin();
-
-    function resolveApiOrigin() {
-      const configuredOrigin = SUPABASE_CONFIG.workerOrigin || SUPABASE_CONFIG.apiOrigin || SUPABASE_CONFIG.apiBase || '';
-      if (!configuredOrigin) return window.location.origin.replace(/\/+$/, '');
-      return String(configuredOrigin).replace(/\/api\/?$/, '').replace(/\/+$/, '');
-    }
+    const API = 'https://realeliteweb-app.elitetransportghana.workers.dev';
 
     const form = document.getElementById('adForm');
     const emailEl = document.getElementById('adEmail');

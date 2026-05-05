@@ -15,10 +15,6 @@
       list: [], offset: 0, limit: 40,
       routeId: '', dateFrom: '', dateTo: '', status: '', search: ''
     },
-    commissions: {
-      list: [], offset: 0, limit: 50,
-      dateFrom: '', dateTo: ''
-    },
     selectedPax: new Set()   // booking IDs selected for SMS
   };
 
@@ -76,6 +72,58 @@
     }, 3400);
   }
 
+  /* ── Confirm / Prompt modals (replace native browser dialogs) ── */
+  function adminConfirm(msg) {
+    return new Promise(resolve => {
+      const modal = document.getElementById('adm-confirm-modal');
+      const msgEl  = document.getElementById('adm-confirm-msg');
+      const okBtn  = document.getElementById('adm-confirm-ok');
+      const noBtn  = document.getElementById('adm-confirm-cancel');
+      if (!modal) { resolve(window.confirm(msg)); return; }
+      msgEl.textContent = msg;
+      modal.style.display = 'flex';
+      function done(val) {
+        modal.style.display = 'none';
+        okBtn.removeEventListener('click', yes);
+        noBtn.removeEventListener('click', no);
+        resolve(val);
+      }
+      function yes() { done(true); }
+      function no()  { done(false); }
+      okBtn.addEventListener('click', yes);
+      noBtn.addEventListener('click', no);
+    });
+  }
+
+  function adminPrompt(msg, placeholder = '') {
+    return new Promise(resolve => {
+      const modal   = document.getElementById('adm-prompt-modal');
+      const msgEl   = document.getElementById('adm-prompt-msg');
+      const input   = document.getElementById('adm-prompt-input');
+      const okBtn   = document.getElementById('adm-prompt-ok');
+      const noBtn   = document.getElementById('adm-prompt-cancel');
+      if (!modal) { resolve(window.prompt(msg)); return; }
+      msgEl.textContent   = msg;
+      input.placeholder   = placeholder;
+      input.value         = '';
+      modal.style.display = 'flex';
+      setTimeout(() => input.focus(), 60);
+      function done(val) {
+        modal.style.display = 'none';
+        okBtn.removeEventListener('click', yes);
+        noBtn.removeEventListener('click', no);
+        input.removeEventListener('keydown', onKey);
+        resolve(val);
+      }
+      function yes()  { done(input.value.trim() || null); }
+      function no()   { done(null); }
+      function onKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); yes(); } if (e.key === 'Escape') no(); }
+      okBtn.addEventListener('click', yes);
+      noBtn.addEventListener('click', no);
+      input.addEventListener('keydown', onKey);
+    });
+  }
+
   /* ── GHS formatter ── */
   function ghs(n) {
     return 'GH₵ ' + parseFloat(n || 0).toFixed(2);
@@ -95,10 +143,10 @@
     // Lazy load each tab on first visit
     if (!S.loaded.has(name)) {
       S.loaded.add(name);
+      if (name === 'overview')   loadOverview();
+      if (name === 'book')       initBookTab();
       if (name === 'passengers') loadPassengers();
       if (name === 'trips')      loadTrips();
-      if (name === 'operators')  loadOperators();
-      if (name === 'commissions') loadCommissions();
     }
   }
 
@@ -196,28 +244,62 @@
       return;
     }
 
-    list.innerHTML = items.map(b => {
-      const name = (b.first_name || '') + ' ' + (b.last_name || '');
-      const initials = ((b.first_name || '?')[0] + (b.last_name || '?')[0]).toUpperCase();
-      const boarded = !!b.boarded_at;
-      const methodBadge = payBadge(b.payment_method);
-      const checked = S.selectedPax.has(b.id);
+    // Group by trip (departure_date + route_name + departure_time)
+    const groups = new Map();
+    items.forEach(b => {
+      const key = (b.departure_date || '') + '|' + (b.route_name || '') + '|' + (b.departure_time || '');
+      if (!groups.has(key)) groups.set(key, { label: b, passengers: [], sortKey: b.departure_date || '' });
+      groups.get(key).passengers.push(b);
+    });
 
-      return `<div class="app-pax-card ${boarded ? 'is-boarded' : ''}" data-id="${b.id}">
+    const now = new Date().toISOString().slice(0, 10);
+
+    // Sort groups: upcoming (today/future) first sorted ascending; past trips after sorted descending
+    const sorted = Array.from(groups.values()).sort((a, b) => {
+      const aDate = a.sortKey;
+      const bDate = b.sortKey;
+      const aUpcoming = aDate >= now;
+      const bUpcoming = bDate >= now;
+      if (aUpcoming && bUpcoming) return aDate.localeCompare(bDate); // soonest first
+      if (!aUpcoming && !bUpcoming) return bDate.localeCompare(aDate); // most recent past first
+      return aUpcoming ? -1 : 1; // upcoming before past
+    });
+
+    list.innerHTML = sorted.map(group => {
+      const lbl = group.label;
+      const isPast = (lbl.departure_date || '') < now;
+
+      // Format date nicely
+      const depDate = lbl.departure_date
+        ? new Date(lbl.departure_date + 'T00:00:00').toLocaleDateString('en-GH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+        : '';
+      const depTime = lbl.departure_time ? lbl.departure_time : '';
+
+      const boardedCount = group.passengers.filter(b => !!b.boarded_at).length;
+      const totalCount = group.passengers.length;
+
+      const paxHtml = group.passengers.map(b => {
+        const name = (b.first_name || '') + ' ' + (b.last_name || '');
+        const initials = ((b.first_name || '?')[0] + (b.last_name || '?')[0]).toUpperCase();
+        const boarded = !!b.boarded_at;
+        const methodBadge = payBadge(b.payment_method);
+        const checked = S.selectedPax.has(b.id);
+
+        return `<div class="app-pax-card ${boarded ? 'is-boarded' : ''}" data-id="${b.id}" id="pax-card-${b.id}">
   <div class="app-pax-card__head" onclick="adminApp.togglePaxExpand(${b.id})">
     <input type="checkbox" class="app-pax-checkbox" onclick="event.stopPropagation();adminApp.togglePaxSelect(${b.id},this)"
       ${checked ? 'checked' : ''} aria-label="Select ${name.trim()}"/>
     <div class="app-pax-card__avatar">${initials}</div>
     <div class="app-pax-card__info">
       <div class="app-pax-card__name">${name.trim() || 'Unknown'}</div>
-      <div class="app-pax-card__sub">${b.phone || ''} &bull; ${b.route_name || ''}</div>
+      <div class="app-pax-card__sub">${b.phone || ''} &bull; Seat <strong>${b.seat_number || '—'}</strong></div>
     </div>
     <div class="app-pax-card__meta">
       ${methodBadge}
       <span class="app-badge ${boarded ? 'app-badge--green' : 'app-badge--amber'}">
-        ${boarded ? 'Boarded' : 'Pending'}
+        ${boarded ? '<i class="fa-solid fa-circle-check" style="margin-right:3px;"></i>Boarded' : 'Pending'}
       </span>
-      <span style="font-weight:700;font-size:13px;color:#112211;">${ghs(b.price_paid)}</span>
+      <span class="app-pax-card__price">${ghs(b.price_paid)}</span>
     </div>
   </div>
   <div class="app-pax-card__body" id="pax-body-${b.id}">
@@ -230,13 +312,38 @@
       <div class="app-pax-detail-item"><label>Boarded at</label><span>${b.boarded_at ? new Date(b.boarded_at).toLocaleTimeString() : '—'}</span></div>
       <div class="app-pax-detail-item"><label>Booking ID</label><span style="font-size:11px;opacity:.7;">${b.id}</span></div>
     </div>
-    <div style="margin-top:12px;display:flex;gap:8px;">
+    <div class="app-pax-card__actions">
+      ${!boarded ? `<button class="app-btn app-btn--checkin app-btn--sm" id="checkin-btn-${b.id}"
+        onclick="adminApp.checkinPassenger(${b.id})">
+        <i class="fa-solid fa-clipboard-check"></i> Check In
+      </button>` : `<button class="app-btn app-btn--checkin app-btn--sm" disabled>
+        <i class="fa-solid fa-circle-check"></i> Boarded ✓
+      </button>`}
       <button class="app-btn app-btn--ghost app-btn--sm"
         onclick="adminApp.smsSingle('${b.id}','${(b.phone || '').replace(/'/g,'')}','${name.trim().replace(/'/g,'')}')">
         <i class="fa-solid fa-comment-dots"></i> SMS
       </button>
     </div>
   </div>
+</div>`;
+      }).join('');
+
+      return `<div class="app-pax-trip-group ${isPast ? 'app-pax-trip-group--past' : ''}">
+  <div class="app-pax-trip-group__header">
+    <div class="app-pax-trip-group__header-left">
+      <span class="app-pax-trip-group__route"><i class="fa-solid fa-route" style="margin-right:6px;opacity:.6;"></i>${lbl.route_name || 'Unknown route'}</span>
+      <span class="app-pax-trip-group__datetime"><i class="fa-regular fa-clock" style="margin-right:4px;opacity:.6;"></i>${depDate}${depTime ? ' · ' + depTime : ''}</span>
+    </div>
+    <div class="app-pax-trip-group__header-right">
+      ${isPast ? '<span class="app-badge app-badge--gray" style="font-size:10px;">Past</span>' : '<span class="app-badge app-badge--mint" style="font-size:10px;">Upcoming</span>'}
+      <span class="app-pax-trip-group__progress">${boardedCount}/${totalCount} boarded</span>
+      <span class="app-pax-trip-group__count">${totalCount} pax</span>
+    </div>
+  </div>
+  <div class="app-pax-trip-group__progress-bar">
+    <div class="app-pax-trip-group__progress-fill" style="width:${totalCount ? Math.round(boardedCount/totalCount*100) : 0}%"></div>
+  </div>
+  ${paxHtml}
 </div>`;
     }).join('');
 
@@ -284,6 +391,84 @@
         onclick="adminApp.paxPage(${cur})">
         <i class="fa-solid fa-chevron-right"></i>
       </button>`;
+  }
+
+  /* ════════════════════════════════════════════════
+     OVERVIEW TAB
+  ════════════════════════════════════════════════ */
+  async function loadOverview() {
+    document.getElementById('ov-kpi-trips').textContent    = '…';
+    document.getElementById('ov-kpi-booked').textContent   = '…';
+    document.getElementById('ov-kpi-revenue').textContent  = '…';
+    document.getElementById('ov-kpi-occupancy').textContent = '…';
+    document.getElementById('overview-trip-grid').innerHTML =
+      '<div class="app-empty"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading…</p></div>';
+    try {
+      const data = await api('/admin/fleet/options');
+      if (!data) return;
+      S.routes          = data.routes || [];
+      S.operators       = data.operators || [];
+      S.trips.active    = data.activeTrips || [];
+      S.trips.recent    = data.recentTrips || [];
+      populateRouteFilters();
+      populateOperatorFilter();
+      renderOverview();
+    } catch (e) {
+      document.getElementById('overview-trip-grid').innerHTML =
+        `<div class="app-empty"><i class="fa-solid fa-circle-exclamation"></i><p>${e.message}</p></div>`;
+    }
+  }
+
+  function renderOverview() {
+    const now = new Date();
+    const h   = now.getHours();
+    const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+    const dateStr = now.toLocaleDateString('en-GH', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+    const helloEl = document.getElementById('overview-hello');
+    const dateEl  = document.getElementById('overview-date');
+    if (helloEl) helloEl.textContent = greet + ', Manager';
+    if (dateEl)  dateEl.textContent  = dateStr;
+
+    const active = S.trips.active;
+    const totalBooked = active.reduce((s, t) => s + (t.bookedCount || 0), 0);
+    const totalRev    = active.reduce((s, t) => s + parseFloat(t.revenueTotal || 0), 0);
+    const avgOcc      = active.length
+      ? Math.round(active.reduce((s, t) => s + (t.occupancyPercent || 0), 0) / active.length)
+      : 0;
+
+    document.getElementById('ov-kpi-trips').textContent    = active.length;
+    document.getElementById('ov-kpi-booked').textContent   = totalBooked;
+    document.getElementById('ov-kpi-revenue').textContent  = ghs(totalRev);
+    document.getElementById('ov-kpi-occupancy').textContent = avgOcc + '%';
+
+    const grid = document.getElementById('overview-trip-grid');
+    const upcoming = [...active, ...S.trips.recent.filter(t => t.status === 'scheduled')]
+      .sort((a, b) => (String(a.departure_date || '') + String(a.departure_time || ''))
+        .localeCompare(String(b.departure_date || '') + String(b.departure_time || '')));
+
+    if (upcoming.length === 0) {
+      grid.innerHTML = '<div class="app-empty"><i class="fa-solid fa-calendar-xmark"></i><p>No upcoming trips.</p></div>';
+      return;
+    }
+    grid.innerHTML = upcoming.map(t => overviewTripCardHtml(t)).join('');
+  }
+
+  function overviewTripCardHtml(t) {
+    const occ = Math.round(t.occupancyPercent || 0);
+    const seatsLeft = t.seatLeft != null ? t.seatLeft : '—';
+    const statusLabel = t.status === 'scheduled' ? '<span class="app-badge app-badge--amber" style="font-size:11px;">Scheduled</span>' : '';
+    return `<div class="app-overview-trip-card">
+  <div class="app-overview-trip-card__route">${t.routeName || '—'} ${statusLabel}</div>
+  <div class="app-overview-trip-card__meta">${t.departureDate || ''} ${t.departureTime || ''} &bull; ${t.busName || '—'}</div>
+  <div class="app-overview-trip-card__stats">
+    <div class="app-overview-trip-card__stat"><label>Revenue</label><span>${ghs(t.revenueTotal)}</span></div>
+    <div class="app-overview-trip-card__stat"><label>Seats left</label><span>${seatsLeft}</span></div>
+  </div>
+  <div class="app-progress-bar" title="${occ}% occupancy">
+    <div class="app-progress-bar__fill" style="width:${occ}%"></div>
+  </div>
+</div>`;
   }
 
   /* ════════════════════════════════════════════════
@@ -364,19 +549,19 @@
   }
 
   function tripCardHtml(t) {
-    const occ = Math.round(t.occupancy_percent || 0);
+    const occ = Math.round(t.occupancyPercent || 0);
     const statusBadge = statusPill(t.status);
-    const dep = t.departure_station_name || '—';
-    const arr = t.arrival_station_name || '—';
+    const dep = t.departureStationName || '—';
+    const arr = t.arrivalStationName || '—';
 
     return `<div class="app-trip-card">
   <div class="app-trip-card__top">
     <div>
-      <div class="app-trip-card__route">${t.route_name || '—'}</div>
+      <div class="app-trip-card__route">${t.routeName || '—'}</div>
       <div class="app-trip-card__meta">
-        ${t.departure_date || ''} ${t.departure_time || ''}
-        &bull; ${t.bus_name || '—'}
-        ${t.operator_name ? '&bull; ' + t.operator_name : ''}
+        ${t.departureDate || ''} ${t.departureTime || ''}
+        &bull; ${t.busName || '—'}
+        ${t.operatorName ? '&bull; ' + t.operatorName : ''}
       </div>
     </div>
     ${statusBadge}
@@ -394,30 +579,32 @@
 
   <div class="app-trip-card__stats">
     <div class="app-trip-stat">
-      <div class="app-trip-stat__value">${t.booked_count || 0}</div>
+      <div class="app-trip-stat__value">${t.bookedCount || 0}</div>
       <div class="app-trip-stat__label">Booked</div>
     </div>
     <div class="app-trip-stat">
-      <div class="app-trip-stat__value">${t.boarded_count || 0}</div>
+      <div class="app-trip-stat__value">${t.boardedCount || 0}</div>
       <div class="app-trip-stat__label">Boarded</div>
     </div>
     <div class="app-trip-stat">
-      <div class="app-trip-stat__value">${t.seats_remaining != null ? t.seats_remaining : '—'}</div>
+      <div class="app-trip-stat__value">${t.seatLeft != null ? t.seatLeft : '—'}</div>
       <div class="app-trip-stat__label">Seats left</div>
     </div>
     <div class="app-trip-stat">
-      <div class="app-trip-stat__value">${ghs(t.revenue_total)}</div>
+      <div class="app-trip-stat__value">${ghs(t.revenueTotal)}</div>
       <div class="app-trip-stat__label">Revenue</div>
     </div>
   </div>
 
   <div class="app-trip-card__actions">
+    ${t.status === 'scheduled' ? `<button class="app-btn app-btn--primary app-btn--sm" onclick="adminApp.startTrip('${t.id}')"><i class="fa-solid fa-play"></i> Start Trip</button>` : ''}
+    ${t.status === 'active' ? `<button class="app-btn app-btn--danger app-btn--sm" onclick="adminApp.endTrip('${t.id}')"><i class="fa-solid fa-flag-checkered"></i> End Trip</button>` : ''}
     <button class="app-btn app-btn--ghost app-btn--sm"
       onclick="adminApp.notifyTrip('${t.id}')">
       <i class="fa-solid fa-bell"></i> Notify
     </button>
     <button class="app-btn app-btn--ghost app-btn--sm"
-      onclick="adminApp.viewTripPassengers('${t.id}','${(t.route_name||'').replace(/'/g,'')}')">
+      onclick="adminApp.viewTripPassengers('${t.id}','${(t.routeName||'').replace(/'/g,'')}')">
       <i class="fa-solid fa-users"></i> Passengers
     </button>
   </div>
@@ -429,10 +616,10 @@
     if (!strip) return;
     strip.style.display = '';
     const all = [...S.trips.active, ...S.trips.recent];
-    const totalBooked = all.reduce((s, t) => s + (t.booked_count || 0), 0);
-    const totalRev    = all.reduce((s, t) => s + parseFloat(t.revenue_total || 0), 0);
+    const totalBooked = all.reduce((s, t) => s + (t.bookedCount || 0), 0);
+    const totalRev    = all.reduce((s, t) => s + parseFloat(t.revenueTotal || 0), 0);
     const avgOcc = all.length
-      ? Math.round(all.reduce((s, t) => s + (t.occupancy_percent || 0), 0) / all.length)
+      ? Math.round(all.reduce((s, t) => s + (t.occupancyPercent || 0), 0) / all.length)
       : 0;
     document.getElementById('kpi-active-trips').textContent  = S.trips.active.length;
     document.getElementById('kpi-total-booked').textContent  = totalBooked;
@@ -450,139 +637,38 @@
   }
 
   /* ════════════════════════════════════════════════
-     OPERATORS TAB
+     TRIP ACTIONS
   ════════════════════════════════════════════════ */
-  async function loadOperators() {
-    const grid = document.getElementById('operators-grid');
-    grid.innerHTML = '<div class="app-empty"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading…</p></div>';
-
+  async function checkinPassenger(bookingId) {
+    const btn = document.getElementById('checkin-btn-' + bookingId);
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; }
     try {
-      const data = await api('/admin/operators');
-      if (!data) return;
-      S.operators = data.operators || data || [];
-      renderOperators();
+      await api('/admin/bookings/' + bookingId + '/checkin', { method: 'POST' });
+      toast('Passenger checked in.');
+      // Update card state without full reload
+      const card = document.getElementById('pax-card-' + bookingId);
+      if (card) {
+        card.classList.add('is-boarded');
+        const badgeSpan = card.querySelector('.app-badge.app-badge--amber');
+        if (badgeSpan) { badgeSpan.className = 'app-badge app-badge--green'; badgeSpan.textContent = 'Boarded'; }
+      }
+      if (btn) { btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Boarded ✓'; }
     } catch (e) {
-      grid.innerHTML = `<div class="app-empty"><i class="fa-solid fa-circle-exclamation"></i><p>${e.message}</p></div>`;
+      toast(e.message, false);
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-clipboard-check"></i> Check In'; }
     }
   }
 
-  function renderOperators() {
-    const filter = document.getElementById('op-status-filter')?.value || '';
-    const grid   = document.getElementById('operators-grid');
-    let ops = S.operators;
-    if (filter) ops = ops.filter(o => (o.status || '').toLowerCase() === filter);
-
-    document.getElementById('operators-summary-text').textContent =
-      `${ops.length} operator${ops.length !== 1 ? 's' : ''}`;
-
-    if (ops.length === 0) {
-      grid.innerHTML = '<div class="app-empty"><i class="fa-solid fa-building-circle-xmark"></i><p>No operators found.</p></div>';
-      return;
-    }
-
-    grid.innerHTML = ops.map(op => {
-      const active = (op.status || '').toLowerCase() === 'active';
-      const pending = (op.status || '').toLowerCase() === 'pending';
-
-      return `<div class="app-operator-card">
-  <div class="app-operator-card__name">${op.name || op.business_name || '—'}</div>
-  <div class="app-operator-card__email">${op.email || '—'}</div>
-  <div class="app-operator-card__row"><span>Status</span><span>${statusPill(op.status)}</span></div>
-  <div class="app-operator-card__row"><span>Fleet</span><span>${op.bus_count || op.fleet_count || 0} bus${(op.bus_count || 0) !== 1 ? 'es' : ''}</span></div>
-  <div class="app-operator-card__row"><span>Routes</span><span>${op.route_count || 0}</span></div>
-  <div class="app-operator-card__row"><span>Commission</span><span>${op.commission_rate != null ? op.commission_rate + '%' : '—'}</span></div>
-  <div class="app-operator-card__row"><span>Total bookings</span><span>${op.total_bookings || 0}</span></div>
-  <div class="app-operator-card__actions">
-    ${pending ? `<button class="app-btn app-btn--primary app-btn--sm" onclick="adminApp.approveOperator('${op.id}')"><i class="fa-solid fa-check"></i> Approve</button>` : ''}
-    ${active  ? `<button class="app-btn app-btn--danger  app-btn--sm" onclick="adminApp.suspendOperator('${op.id}')"><i class="fa-solid fa-ban"></i> Suspend</button>` : ''}
-    ${!active && !pending ? `<button class="app-btn app-btn--ghost app-btn--sm"  onclick="adminApp.approveOperator('${op.id}')"><i class="fa-solid fa-rotate"></i> Reinstate</button>` : ''}
-  </div>
-</div>`;
-    }).join('');
-  }
-
-  /* ════════════════════════════════════════════════
-     COMMISSIONS TAB
-  ════════════════════════════════════════════════ */
-  async function loadCommissions(reset = false) {
-    if (reset) S.commissions.offset = 0;
-    const c = S.commissions;
-
-    const tbody = document.getElementById('commissions-tbody');
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:rgba(17,34,17,.4);">
-      <i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Loading…</td></tr>`;
-
-    const params = new URLSearchParams();
-    if (c.dateFrom) params.set('dateFrom', c.dateFrom);
-    if (c.dateTo)   params.set('dateTo',   c.dateTo);
-    params.set('limit',  String(c.limit));
-    params.set('offset', String(c.offset));
-
+  async function notifyTrip(tripId) {
+    const message = await adminPrompt('Message to send to all passengers on this trip:', 'Type your message…');
+    if (!message) return;
     try {
-      const data = await api('/admin/commissions?' + params.toString());
-      if (!data) return;
-      c.list = data.commissions || data || [];
-      renderCommissions(data);
-    } catch (e) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:#c0392b;">${e.message}</td></tr>`;
-    }
-  }
-
-  function renderCommissions(data) {
-    const c = S.commissions;
-    const tbody = document.getElementById('commissions-tbody');
-    const strip = document.getElementById('comm-kpi-strip');
-
-    if (c.list.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:rgba(17,34,17,.4);">No commission records.</td></tr>';
-      if (strip) strip.style.display = 'none';
-      return;
-    }
-
-    tbody.innerHTML = c.list.map(row => `
-      <tr>
-        <td>${row.operator_name || '—'}</td>
-        <td>${row.route_name    || '—'}</td>
-        <td>${row.period_date || row.date || '—'}</td>
-        <td>${row.booking_count || 0}</td>
-        <td>${ghs(row.gross_revenue || row.total_revenue)}</td>
-        <td>${row.commission_rate != null ? row.commission_rate + '%' : '—'}</td>
-        <td style="font-weight:700;">${ghs(row.commission_amount || row.commission)}</td>
-        <td>${statusPill(row.status || 'calculated')}</td>
-      </tr>`).join('');
-
-    // KPI
-    if (strip) {
-      strip.style.display = '';
-      const totalComm  = c.list.reduce((s, r) => s + parseFloat(r.commission_amount || r.commission || 0), 0);
-      const totalCount = c.list.reduce((s, r) => s + (r.booking_count || 0), 0);
-      const rates      = c.list.map(r => parseFloat(r.commission_rate || 0)).filter(Boolean);
-      const avgRate    = rates.length ? (rates.reduce((a, b) => a + b, 0) / rates.length).toFixed(1) : '—';
-
-      document.getElementById('kpi-comm-total').textContent = ghs(totalComm);
-      document.getElementById('kpi-comm-count').textContent = totalCount;
-      document.getElementById('kpi-comm-rate').textContent  = avgRate !== '—' ? avgRate + '%' : '—';
-    }
-
-    const total = data.total || c.list.length;
-    document.getElementById('commissions-summary-text').textContent =
-      `${total} record${total !== 1 ? 's' : ''}`;
-    renderCommPagination(total);
-  }
-
-  function renderCommPagination(total) {
-    const c = S.commissions;
-    const pages = Math.ceil(total / c.limit);
-    const cur = Math.floor(c.offset / c.limit) + 1;
-    const cont = document.getElementById('comm-pagination');
-    if (pages <= 1) { cont.style.display = 'none'; return; }
-    cont.style.display = 'flex';
-    cont.innerHTML = `
-      <button class="app-btn app-btn--ghost app-btn--sm" ${cur === 1 ? 'disabled' : ''}
-        onclick="adminApp.commPage(${cur - 2})"><i class="fa-solid fa-chevron-left"></i></button>
-      <span style="font-size:13px;font-weight:600;padding:0 8px;">${cur} / ${pages}</span>
-      <button class="app-btn app-btn--ghost app-btn--sm" ${cur >= pages ? 'disabled' : ''}
-        onclick="adminApp.commPage(${cur})"><i class="fa-solid fa-chevron-right"></i></button>`;
+      await api('/admin/trips/' + tripId + '/notify', {
+        method: 'POST',
+        body: JSON.stringify({ message })
+      });
+      toast('Notification sent.');
+    } catch (e) { toast(e.message, false); }
   }
 
   /* ════════════════════════════════════════════════
@@ -618,38 +704,6 @@
   }
 
   /* ════════════════════════════════════════════════
-     OPERATOR ACTIONS
-  ════════════════════════════════════════════════ */
-  async function approveOperator(id) {
-    try {
-      await api('/admin/operators/' + id + '/approve', { method: 'POST' });
-      toast('Operator approved.');
-      loadOperators();
-    } catch (e) { toast(e.message, false); }
-  }
-
-  async function suspendOperator(id) {
-    if (!confirm('Suspend this operator?')) return;
-    try {
-      await api('/admin/operators/' + id + '/suspend', { method: 'POST' });
-      toast('Operator suspended.');
-      loadOperators();
-    } catch (e) { toast(e.message, false); }
-  }
-
-  async function notifyTrip(tripId) {
-    const message = prompt('Message to send to all passengers on this trip:');
-    if (!message) return;
-    try {
-      await api('/admin/trips/' + tripId + '/notify', {
-        method: 'POST',
-        body: JSON.stringify({ message })
-      });
-      toast('Notification sent.');
-    } catch (e) { toast(e.message, false); }
-  }
-
-  /* ════════════════════════════════════════════════
      PUBLIC API (called from HTML onclick)
   ════════════════════════════════════════════════ */
   window.adminApp = {
@@ -666,16 +720,30 @@
       S.passengers.offset = page * S.passengers.limit;
       loadPassengers();
     },
-    commPage(page) {
-      S.commissions.offset = page * S.commissions.limit;
-      loadCommissions();
+    checkinPassenger(bookingId) {
+      checkinPassenger(bookingId);
     },
-    approveOperator,
-    suspendOperator,
+    async startTrip(id) {
+      try {
+        await api('/admin/trips/' + id + '/start', { method: 'POST' });
+        toast('Trip started.');
+        S.loaded.delete('trips');
+        loadTrips();
+        if (S.loaded.has('overview')) { S.loaded.delete('overview'); loadOverview(); }
+      } catch (e) { toast(e.message, false); }
+    },
+    async endTrip(id) {
+      if (!await adminConfirm('End this trip? This will mark it as completed and restore seat capacity.')) return;
+      try {
+        await api('/admin/trips/' + id + '/end', { method: 'POST' });
+        toast('Trip ended.');
+        S.loaded.delete('trips');
+        loadTrips();
+        if (S.loaded.has('overview')) { S.loaded.delete('overview'); loadOverview(); }
+      } catch (e) { toast(e.message, false); }
+    },
     notifyTrip,
     viewTripPassengers(tripId, routeName) {
-      // Switch to Passengers tab, filter by trip
-      // We use routeId from the trip if available; otherwise just switch tab
       document.getElementById('pax-route-filter').value = '';
       S.passengers.routeId  = '';
       S.passengers.dateFrom = '';
@@ -685,13 +753,13 @@
       S.loaded.delete('passengers');
       switchTab('passengers');
     },
-    smsSingle(bookingId, phone, name) {
-      const msg = prompt(`SMS to ${name} (${phone}):`);
+    async smsSingle(bookingId, phone, name) {
+      const msg = await adminPrompt(`SMS to ${name} (${phone}):`, 'Type your message…');
       if (!msg) return;
       api('/admin/sms/send', {
         method: 'POST',
         body: JSON.stringify({ phone, name, message: msg.trim() })
-      }).then(r => toast(`Sent to ${phone}.`)).catch(e => toast(e.message, false));
+      }).then(() => toast(`Sent to ${phone}.`)).catch(e => toast(e.message, false));
     },
     closeReceiptModal
   };
@@ -777,12 +845,12 @@
       let active = S.trips.active;
       let recent = S.trips.recent;
       if (routeId) {
-        active = active.filter(t => String(t.route_id) === routeId);
-        recent = recent.filter(t => String(t.route_id) === routeId);
+        active = active.filter(t => String(t.routeId) === routeId);
+        recent = recent.filter(t => String(t.routeId) === routeId);
       }
       if (opId) {
-        active = active.filter(t => String(t.operator_id) === opId);
-        recent = recent.filter(t => String(t.operator_id) === opId);
+        active = active.filter(t => String(t.operatorId) === opId);
+        recent = recent.filter(t => String(t.operatorId) === opId);
       }
       if (statuses.length) {
         active = active.filter(t => statuses.includes((t.status || '').toLowerCase()));
@@ -797,23 +865,10 @@
       loadTrips();
     });
 
-    // Operators filter
-    document.getElementById('op-status-filter')?.addEventListener('change', renderOperators);
-    document.getElementById('operators-refresh-btn')?.addEventListener('click', () => {
-      S.loaded.delete('operators');
-      loadOperators();
-    });
-
-    // Commissions filter
-    document.getElementById('comm-apply-filter')?.addEventListener('click', () => {
-      S.commissions.dateFrom = document.getElementById('comm-date-from').value;
-      S.commissions.dateTo   = document.getElementById('comm-date-to').value;
-      loadCommissions(true);
-    });
-
-    document.getElementById('comm-refresh-btn')?.addEventListener('click', () => {
-      S.loaded.delete('commissions');
-      loadCommissions(true);
+    // Overview refresh
+    document.getElementById('overview-refresh-btn')?.addEventListener('click', () => {
+      S.loaded.delete('overview');
+      loadOverview();
     });
 
     // Compose bar
@@ -850,10 +905,9 @@
     if (!requireAuth()) return;
     bindEvents();
     loadAdminProfile();
-    initBookTab();
-    // Trips loads first (also populates route filters used in Passengers tab)
-    S.loaded.add('trips');
-    loadTrips();
+    // Overview loads first (also populates routes/operators used in other tabs)
+    S.loaded.add('overview');
+    loadOverview();
     // Honour ?tab= param (e.g. returning from add-trip.html)
     const paramTab = new URLSearchParams(location.search).get('tab');
     if (paramTab) switchTab(paramTab);

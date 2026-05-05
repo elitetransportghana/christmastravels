@@ -366,7 +366,7 @@
       if (!token) return;
       try {
         const user = await verifyTokenAndGetUser(token);
-        if (user?.isAdmin) window.location.replace('./');
+        if (user?.isAdmin) window.location.replace('./app.html');
       } catch (_) {}
     })();
 
@@ -387,7 +387,7 @@
         }
 
         persistSession(token, user);
-        window.location.replace('./');
+        window.location.replace('./app.html');
       } catch (err) {
         showErr(err.message || 'Login failed.');
       } finally {

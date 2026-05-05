@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin · Elite Transport</title>
-  <link rel="stylesheet" href="../style.css?v=11" />
-  <link rel="stylesheet" href="../landing.css?v=15" />
-  <link rel="stylesheet" href="../find-bus.css?v=8" />
+  <link rel="stylesheet" href="../style.css?v=13" />
+  <link rel="stylesheet" href="../landing.css?v=20" />
+  <link rel="stylesheet" href="../find-bus.css?v=9" />
   <link rel="stylesheet" href="../checkout.css?v=10" />
   <link rel="stylesheet" href="../dashboard-booking.css" />
-  <link rel="stylesheet" href="./app.css?v=1" />
+  <link rel="stylesheet" href="./app.css?v=5" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
 </head>
 <body class="landing-page app-page">
@@ -27,11 +27,7 @@
         <span></span><span></span><span></span>
       </button>
       <div class="landing-navbar__panel" id="admin-app-nav" data-nav-panel>
-        <ul class="nav-links landing-nav-links">
-          <li><a href="../search.html" class="landing-nav-links__link">Find Bus</a></li>
-          <li><a href="https://elitetransportghana.com/ticket.html" class="landing-nav-links__link" target="_blank" rel="noopener">Tickets</a></li>
-          <li><a href="./index.html" class="landing-nav-links__link">Analytics</a></li>
-        </ul>
+        <ul class="nav-links landing-nav-links"></ul>
         <a href="../index.html" class="elite-brand elite-brand--desktop">
           <span class="elite-brand__mark">
             <img src="../ELITE TRANSPORT.png" alt="Elite Transport" />
@@ -49,8 +45,12 @@
   <div class="app-shell">
 
     <!-- ════ Tab strip ════ -->
-    <nav class="app-tab-strip app-tabs-5" role="tablist" id="admin-tab-strip">
-      <button class="app-tab-btn is-active" data-tab="book"        role="tab" aria-selected="true">
+    <nav class="app-tab-strip app-tabs-4" role="tablist" id="admin-tab-strip">
+      <button class="app-tab-btn is-active" data-tab="overview" role="tab" aria-selected="true">
+        <i class="fa-solid fa-chart-line"></i>
+        <span class="app-tab-label">Overview</span>
+      </button>
+      <button class="app-tab-btn" data-tab="book" role="tab" aria-selected="false">
         <i class="fa-solid fa-ticket"></i>
         <span class="app-tab-label">Book</span>
       </button>
@@ -58,22 +58,57 @@
         <i class="fa-solid fa-users"></i>
         <span class="app-tab-label">Passengers</span>
       </button>
-      <button class="app-tab-btn" data-tab="trips"      role="tab" aria-selected="false">
+      <button class="app-tab-btn" data-tab="trips" role="tab" aria-selected="false">
         <i class="fa-solid fa-bus"></i>
         <span class="app-tab-label">Trips</span>
       </button>
-      <button class="app-tab-btn" data-tab="operators"  role="tab" aria-selected="false">
-        <i class="fa-solid fa-building"></i>
-        <span class="app-tab-label">Operators</span>
-      </button>
-      <button class="app-tab-btn" data-tab="commissions" role="tab" aria-selected="false">
-        <i class="fa-solid fa-coins"></i>
-        <span class="app-tab-label">Commissions</span>
-      </button>
     </nav>
 
+    <!-- ════ OVERVIEW panel ════ -->
+    <div id="panel-overview" class="app-tab-panel is-active">
+      <!-- Greeting card -->
+      <div class="app-overview-greeting" id="overview-greeting">
+        <div>
+          <p class="app-overview-greeting__hello" id="overview-hello">Hello, Manager</p>
+          <p class="app-overview-greeting__sub">Here's what's happening with your fleet today.</p>
+        </div>
+        <div class="app-overview-greeting__date" id="overview-date"></div>
+      </div>
+
+      <!-- KPI strip -->
+      <div class="app-kpi-strip" style="margin-bottom:28px;">
+        <div class="app-kpi-card">
+          <div class="app-kpi-card__label">Active Trips</div>
+          <div class="app-kpi-card__value" id="ov-kpi-trips">—</div>
+        </div>
+        <div class="app-kpi-card">
+          <div class="app-kpi-card__label">Seats Booked</div>
+          <div class="app-kpi-card__value" id="ov-kpi-booked">—</div>
+        </div>
+        <div class="app-kpi-card">
+          <div class="app-kpi-card__label">Revenue Today</div>
+          <div class="app-kpi-card__value" id="ov-kpi-revenue">—</div>
+        </div>
+        <div class="app-kpi-card">
+          <div class="app-kpi-card__label">Avg Occupancy</div>
+          <div class="app-kpi-card__value" id="ov-kpi-occupancy">—</div>
+        </div>
+      </div>
+
+      <!-- Upcoming trips grid -->
+      <div class="app-section-head" style="margin-bottom:16px;">
+        <div><h2>Upcoming Trips</h2></div>
+        <button class="app-btn app-btn--ghost app-btn--sm" id="overview-refresh-btn">
+          <i class="fa-solid fa-rotate-right"></i> Refresh
+        </button>
+      </div>
+      <div id="overview-trip-grid" class="app-overview-trip-grid">
+        <div class="app-empty"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading…</p></div>
+      </div>
+    </div>
+
     <!-- ════ BOOK panel ════ -->
-    <div id="panel-book" class="app-tab-panel is-active">
+    <div id="panel-book" class="app-tab-panel">
       <div class="app-section-head">
         <div>
           <h2>Book a Ticket</h2>
@@ -184,6 +219,7 @@
             <div class="findbus-filters__block">
               <label class="findbus-filters__label">Status</label>
               <div class="findbus-filters__checks">
+                <label class="findbus-filters__check"><input type="checkbox" name="trip-status" value="scheduled" /><span>Scheduled</span></label>
                 <label class="findbus-filters__check"><input type="checkbox" name="trip-status" value="active" checked /><span>Active</span></label>
                 <label class="findbus-filters__check"><input type="checkbox" name="trip-status" value="completed" /><span>Completed</span></label>
                 <label class="findbus-filters__check"><input type="checkbox" name="trip-status" value="cancelled" /><span>Cancelled</span></label>
@@ -216,88 +252,6 @@
       </div>
     </div>
 
-    <!-- ════ OPERATORS panel ════ -->
-    <div id="panel-operators" class="app-tab-panel">
-      <div class="app-section-head">
-        <div>
-          <h2>Operators</h2>
-          <p id="operators-summary-text">Manage transport operators</p>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <select id="op-status-filter" style="min-height:40px;border:1.5px solid #d0e8df;border-radius:10px;padding:0 12px;font-family:inherit;font-size:13px;background:#fff;outline:none;">
-            <option value="">All</option>
-            <option value="active">Active</option>
-            <option value="pending">Pending</option>
-            <option value="suspended">Suspended</option>
-          </select>
-          <button class="app-btn app-btn--ghost app-btn--sm" id="operators-refresh-btn">
-            <i class="fa-solid fa-rotate-right"></i>
-          </button>
-        </div>
-      </div>
-      <div id="operators-grid" class="app-operators-grid">
-        <div class="app-empty"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading operators…</p></div>
-      </div>
-    </div>
-
-    <!-- ════ COMMISSIONS panel ════ -->
-    <div id="panel-commissions" class="app-tab-panel">
-      <div class="app-section-head">
-        <div>
-          <h2>Commissions</h2>
-          <p id="commissions-summary-text">Platform earnings from each operator</p>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="date" id="comm-date-from" />
-          <input type="date" id="comm-date-to" />
-          <button class="app-btn app-btn--primary app-btn--sm" id="comm-apply-filter">
-            <i class="fa-solid fa-filter"></i> Apply
-          </button>
-          <button class="app-btn app-btn--ghost app-btn--sm" id="comm-refresh-btn">
-            <i class="fa-solid fa-rotate-right"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- KPI strip -->
-      <div class="app-kpi-strip" id="comm-kpi-strip" style="display:none;">
-        <div class="app-kpi-card">
-          <div class="app-kpi-card__label">Total Commission</div>
-          <div class="app-kpi-card__value" id="kpi-comm-total">—</div>
-        </div>
-        <div class="app-kpi-card">
-          <div class="app-kpi-card__label">Transactions</div>
-          <div class="app-kpi-card__value" id="kpi-comm-count">—</div>
-        </div>
-        <div class="app-kpi-card">
-          <div class="app-kpi-card__label">Avg Rate</div>
-          <div class="app-kpi-card__value" id="kpi-comm-rate">—</div>
-        </div>
-      </div>
-
-      <div class="app-table-card">
-        <table id="commissions-table">
-          <thead>
-            <tr>
-              <th>Operator</th>
-              <th>Route</th>
-              <th>Date</th>
-              <th>Bookings</th>
-              <th>Gross</th>
-              <th>Rate</th>
-              <th>Commission</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="commissions-tbody">
-            <tr><td colspan="8" style="text-align:center;padding:40px;color:rgba(17,34,17,.4);">
-              <i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Loading…
-            </td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div id="comm-pagination" class="app-pagination" style="display:none;"></div>
-    </div>
 
   </div><!-- /.app-shell -->
 
@@ -342,8 +296,30 @@
   <!-- Toast -->
   <div id="app-toast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:opacity .2s,transform .2s;background:#112211;color:#fff;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;pointer-events:none;max-width:340px;text-align:center;"></div>
 
-  <script src="../supabase-config.js"></script>
+  <!-- Confirm Modal -->
+  <div id="adm-confirm-modal" hidden style="position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px);">
+    <div style="background:#fff;border-radius:18px;padding:28px 28px 22px;max-width:420px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.3);border:1px solid #e4eae7;">
+      <p id="adm-confirm-msg" style="font-size:15px;font-weight:600;color:#0f1f0f;margin:0 0 24px;line-height:1.5;"></p>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button id="adm-confirm-cancel" style="padding:9px 20px;border-radius:9px;border:1.5px solid #e4eae7;background:#fff;color:#0f1f0f;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">Cancel</button>
+        <button id="adm-confirm-ok" style="padding:9px 20px;border-radius:9px;border:none;background:#c0392b;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt Modal -->
+  <div id="adm-prompt-modal" hidden style="position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px);">
+    <div style="background:#fff;border-radius:18px;padding:28px 28px 22px;max-width:480px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.3);border:1px solid #e4eae7;">
+      <p id="adm-prompt-msg" style="font-size:14px;font-weight:600;color:#0f1f0f;margin:0 0 14px;line-height:1.5;"></p>
+      <textarea id="adm-prompt-input" rows="3" style="width:100%;box-sizing:border-box;border:1.5px solid #e4eae7;border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13px;color:#0f1f0f;resize:vertical;outline:none;margin-bottom:16px;" onfocus="this.style.borderColor='#1a7a4a'" onblur="this.style.borderColor='#e4eae7'"></textarea>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button id="adm-prompt-cancel" style="padding:9px 20px;border-radius:9px;border:1.5px solid #e4eae7;background:#fff;color:#0f1f0f;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">Cancel</button>
+        <button id="adm-prompt-ok" style="padding:9px 20px;border-radius:9px;border:none;background:#1a7a4a;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">Send</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../dashboard-booking.js"></script>
-  <script src="./app.js?v=1"></script>
+  <script src="./app.js?v=3"></script>
 </body>
 </html>

@@ -29,6 +29,7 @@
   const tabButtons = Array.from(document.querySelectorAll('[data-tab]'));
   const tabPanels = Array.from(document.querySelectorAll('[data-panel]'));
   const GOVERNANCE_TABS = new Set(['overview', 'bookings', 'trips', 'reference', 'operators', 'commissions']);
+  const TICKET_STORAGE_KEY = 'latestConfirmedTicket';
 
   let fleetSnapshot = { routes: [], buses: [], activeTrips: [], recentTrips: [] };
   let referenceSnapshot = { dispatchCenters: [], municipalities: [] };
@@ -147,11 +148,103 @@
     if (current && routeSelect.querySelector(`option[value="${current}"]`)) routeSelect.value = current;
   }
 
+  function splitRouteText(routeText) {
+    const text = String(routeText || '').trim();
+    if (text.includes('->')) {
+      const parts = text.split('->');
+      return {
+        from: String(parts[0] || '').trim(),
+        to: String(parts[1] || '').trim()
+      };
+    }
+    return { from: '', to: '' };
+  }
+
+  function buildTicketPageUrl(ticketPayload) {
+    const ref = String(ticketPayload?.bookingId || '').trim();
+    return `../ticket.html${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
+  }
+
+  function escapeAttr(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function storeTicketPayload(ticketPayload, markFresh = false) {
+    if (!ticketPayload) return;
+    sessionStorage.setItem(TICKET_STORAGE_KEY, JSON.stringify(ticketPayload));
+    if (markFresh) {
+      sessionStorage.setItem('_freshBooking', '1');
+    } else {
+      sessionStorage.removeItem('_freshBooking');
+    }
+  }
+
+  function buildTicketPayloadFromBooking(booking) {
+    if (!booking) return null;
+    const bookingId = String(booking.booking_id || booking.ref || `ELITE-${booking.id || ''}`).trim();
+    const routeName = String(booking.route_name || booking.routeName || 'Elite Transport Route').trim();
+    const routeParts = splitRouteText(routeName);
+    const seats = String(booking.seat_number || booking.seat || booking.seats || '')
+      .split(',')
+      .map((seat) => seat.trim())
+      .filter(Boolean);
+    const firstName = String(booking.first_name || booking.firstName || '').trim();
+    const lastName = String(booking.last_name || booking.lastName || '').trim();
+    const fullName = String(booking.passenger_name || booking.passengerName || `${firstName} ${lastName}`).trim() || 'Passenger 1';
+
+    return {
+      bookingId,
+      bookingIds: [bookingId].filter(Boolean),
+      routeName,
+      busName: String(booking.bus_name || booking.busName || 'Elite Transport Express').trim(),
+      seats,
+      seatCount: Number(booking.seat_count || seats.length || 1),
+      totalPrice: Number(booking.price_paid || booking.price || booking.totalPrice || 0),
+      phone: String(booking.phone || '').trim(),
+      email: String(booking.email || '').trim(),
+      receiptUrl: booking.receipt_url || booking.receiptUrl || null,
+      status: String(booking.status || 'confirmed').trim(),
+      createdAt: String(booking.created_at || booking.createdAt || new Date().toISOString()).trim(),
+      selection: {
+        routeText: routeName,
+        coachName: String(booking.bus_name || booking.busName || 'Elite Transport Express').trim(),
+        routeGroupLabel: String(booking.route_group_label || booking.routeGroupLabel || 'Intercity').trim(),
+        originCity: routeParts.from || '',
+        destinationCity: routeParts.to || '',
+        departureDate: String(booking.departure_date || booking.departureDate || '').trim(),
+        departureTime: String(booking.departure_time || booking.departureTime || '').trim(),
+        arrivalTime: String(booking.arrival_time || booking.arrivalTime || '').trim(),
+        durationLabel: String(booking.duration_label || booking.durationLabel || '').trim(),
+        durationMinutes: Number(booking.duration_minutes || booking.durationMinutes || 0),
+        rating: 4.9,
+        reviewCount: 94,
+        stopSummary: String(booking.stop_summary || booking.stopSummary || 'Direct trip').trim()
+      },
+      customerAvatar: '',
+      passengers: [{
+        bookingId,
+        seat: seats[0] || String(booking.seat_number || booking.seat || '').trim(),
+        firstName: firstName || fullName.split(/\s+/)[0] || '',
+        lastName: lastName || fullName.split(/\s+/).slice(1).join(' '),
+        fullName,
+        avatarUrl: ''
+      }]
+    };
+  }
+
   function passengerCard(p) {
     const fullName = `${p.firstName || ''} ${p.lastName || ''}`.trim();
     const departure = [p.departureDate, p.departureTime].filter(Boolean).join(' ');
-    const receipt = p.receiptUrl
-      ? `<a class="receipt-link" href="${p.receiptUrl}" target="_blank" rel="noopener noreferrer">Download receipt</a>`
+    const ticketPayload = buildTicketPayloadFromBooking(p);
+    const ticketUrl = ticketPayload ? buildTicketPageUrl(ticketPayload) : '';
+    const ticketData = ticketPayload ? escapeAttr(JSON.stringify(ticketPayload)) : '';
+    const receipt = ticketPayload
+      ? `<a class="receipt-link js-admin-ticket-link" href="${ticketUrl}" data-ticket-payload="${ticketData}" target="_blank" rel="noopener noreferrer">View styled receipt</a>${p.receiptUrl ? ` <a class="receipt-link" href="${p.receiptUrl}" target="_blank" rel="noopener noreferrer">Raw file</a>` : ''}`
       : '<span style="color:#879;">No receipt</span>';
 
     return `
@@ -612,7 +705,12 @@
       getAuthToken: readToken,
       bookingEndpoint: '/admin/bookings/manual',
       notify: (type, message) => notify(message, type !== 'error'),
-      onBookingCreated: async () => {
+      onBookingCreated: async (data, bookingContext) => {
+        const ticketPayload = bookingContext?.ticketPayload || buildTicketPayloadFromBooking(data);
+        if (ticketPayload) {
+          storeTicketPayload(ticketPayload, true);
+          window.open(buildTicketPageUrl(ticketPayload), '_blank', 'noopener');
+        }
         await Promise.all([loadBookings(), loadFleet()]);
       }
     });
@@ -1765,6 +1863,18 @@
   }
 
   applyGovernanceMode();
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('.js-admin-ticket-link');
+    if (!link) return;
+    const payloadText = link.getAttribute('data-ticket-payload') || '';
+    if (!payloadText) return;
+    try {
+      storeTicketPayload(JSON.parse(payloadText), false);
+    } catch (_err) {
+      // Ignore malformed payloads and allow the link to continue normally.
+    }
+  });
+
   setupTabs();
   loadAll();
 })();

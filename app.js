@@ -3,6 +3,7 @@
   'use strict';
 
   const API = 'https://realeliteweb-app.elitetransportghana.workers.dev/api';
+  const TICKET_STORAGE_KEY = 'latestConfirmedTicket';
 
   /* ── State ── */
   const S = {
@@ -130,6 +131,92 @@
   }
 
   /* ── Tab switching ── */
+  function splitRouteText(routeText) {
+    const text = String(routeText || '').trim();
+    if (text.includes('->')) {
+      const parts = text.split('->');
+      return {
+        from: String(parts[0] || '').trim(),
+        to: String(parts[1] || '').trim()
+      };
+    }
+    return { from: '', to: '' };
+  }
+
+  function buildTicketPageUrl(ticketPayload) {
+    const ref = String(ticketPayload?.bookingId || '').trim();
+    return `../ticket.html${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
+  }
+
+  function storeTicketPayload(ticketPayload, markFresh = false) {
+    if (!ticketPayload) return;
+    sessionStorage.setItem(TICKET_STORAGE_KEY, JSON.stringify(ticketPayload));
+    if (markFresh) {
+      sessionStorage.setItem('_freshBooking', '1');
+    } else {
+      sessionStorage.removeItem('_freshBooking');
+    }
+  }
+
+  function buildTicketPayloadFromBooking(booking) {
+    if (!booking) return null;
+    const bookingId = String(booking.booking_id || booking.ref || `ELITE-${booking.id || ''}`).trim();
+    const routeName = String(booking.route_name || booking.routeName || 'Elite Transport Route').trim();
+    const routeParts = splitRouteText(routeName);
+    const seats = String(booking.seat_number || booking.seat || booking.seats || '')
+      .split(',')
+      .map((seat) => seat.trim())
+      .filter(Boolean);
+    const firstName = String(booking.first_name || booking.firstName || '').trim();
+    const lastName = String(booking.last_name || booking.lastName || '').trim();
+    const fullName = String(booking.passenger_name || booking.passengerName || `${firstName} ${lastName}`).trim() || 'Passenger 1';
+
+    return {
+      bookingId,
+      bookingIds: [bookingId].filter(Boolean),
+      routeName,
+      busName: String(booking.bus_name || booking.busName || 'Elite Transport Express').trim(),
+      seats,
+      seatCount: Number(booking.seat_count || seats.length || 1),
+      totalPrice: Number(booking.price_paid || booking.price || booking.totalPrice || 0),
+      phone: String(booking.phone || '').trim(),
+      email: String(booking.email || '').trim(),
+      receiptUrl: booking.receipt_url || booking.receiptUrl || null,
+      status: String(booking.status || 'confirmed').trim(),
+      createdAt: String(booking.created_at || booking.createdAt || new Date().toISOString()).trim(),
+      selection: {
+        routeText: routeName,
+        coachName: String(booking.bus_name || booking.busName || 'Elite Transport Express').trim(),
+        routeGroupLabel: String(booking.route_group_label || booking.routeGroupLabel || 'Intercity').trim(),
+        originCity: routeParts.from || '',
+        destinationCity: routeParts.to || '',
+        departureDate: String(booking.departure_date || booking.departureDate || '').trim(),
+        departureTime: String(booking.departure_time || booking.departureTime || '').trim(),
+        arrivalTime: String(booking.arrival_time || booking.arrivalTime || '').trim(),
+        durationLabel: String(booking.duration_label || booking.durationLabel || '').trim(),
+        durationMinutes: Number(booking.duration_minutes || booking.durationMinutes || 0),
+        rating: 4.9,
+        reviewCount: 94,
+        stopSummary: String(booking.stop_summary || booking.stopSummary || 'Direct trip').trim()
+      },
+      customerAvatar: '',
+      passengers: [{
+        bookingId,
+        seat: seats[0] || String(booking.seat_number || booking.seat || '').trim(),
+        firstName: firstName || fullName.split(/\s+/)[0] || '',
+        lastName: lastName || fullName.split(/\s+/).slice(1).join(' '),
+        fullName,
+        avatarUrl: ''
+      }]
+    };
+  }
+
+  function openTicketReceipt(ticketPayload, label) {
+    if (!ticketPayload) return;
+    storeTicketPayload(ticketPayload, false);
+    openReceiptModal(buildTicketPageUrl(ticketPayload), label || `Ticket - ${ticketPayload.bookingId || 'Booking'}`);
+  }
+
   function switchTab(name) {
     document.querySelectorAll('.app-tab-btn').forEach(b => {
       const active = b.dataset.tab === name;
@@ -164,10 +251,16 @@
       context: 'admin',
       bookingEndpoint: '/admin/bookings/manual',
       token: S.token,
-      onBookingCreated: (data) => {
+      onBookingCreated: (data, bookingContext) => {
         toast('Booking confirmed.');
-        const url = data.drive_url || data.receipt_url;
-        if (url) openReceiptModal(url, 'Receipt \u2013 ' + (data.booking_id || 'Booking'));
+        const ticketPayload = bookingContext?.ticketPayload || buildTicketPayloadFromBooking(data);
+        if (ticketPayload) {
+          storeTicketPayload(ticketPayload, true);
+          openReceiptModal(buildTicketPageUrl(ticketPayload), 'Ticket \u2013 ' + (ticketPayload.bookingId || data.booking_id || 'Booking'));
+        } else {
+          const url = data.drive_url || data.receipt_url;
+          if (url) openReceiptModal(url, 'Receipt \u2013 ' + (data.booking_id || 'Booking'));
+        }
         if (S.loaded.has('passengers')) {
           S.passengers.offset = 0;
           loadPassengers();
@@ -322,6 +415,10 @@
       <button class="app-btn app-btn--ghost app-btn--sm"
         onclick="adminApp.smsSingle('${b.id}','${(b.phone || '').replace(/'/g,'')}','${name.trim().replace(/'/g,'')}')">
         <i class="fa-solid fa-comment-dots"></i> SMS
+      </button>
+      <button class="app-btn app-btn--ghost app-btn--sm"
+        onclick="adminApp.viewReceipt('${b.id}')">
+        <i class="fa-solid fa-ticket"></i> Receipt
       </button>
     </div>
   </div>
@@ -760,6 +857,19 @@
         method: 'POST',
         body: JSON.stringify({ phone, name, message: msg.trim() })
       }).then(() => toast(`Sent to ${phone}.`)).catch(e => toast(e.message, false));
+    },
+    viewReceipt(bookingId) {
+      const booking = (S.passengers.list || []).find((item) => String(item.id) === String(bookingId));
+      if (!booking) {
+        toast('Passenger booking could not be found.', false);
+        return;
+      }
+      const ticketPayload = buildTicketPayloadFromBooking(booking);
+      if (!ticketPayload) {
+        toast('Receipt details are not ready yet.', false);
+        return;
+      }
+      openTicketReceipt(ticketPayload, `Ticket - ${ticketPayload.bookingId || 'Booking'}`);
     },
     closeReceiptModal
   };

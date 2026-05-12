@@ -1087,6 +1087,60 @@
       };
     }
 
+    function buildConfirmedTicketPayload(bookingPayload, bookingData, selectedResult) {
+      const bookingIds = Array.isArray(bookingData?.booking_ids) && bookingData.booking_ids.length
+        ? bookingData.booking_ids.map((bookingId) => String(bookingId || '').trim()).filter(Boolean)
+        : [String(bookingData?.booking_id || '').trim()].filter(Boolean);
+      const seats = Array.isArray(bookingData?.seats) && bookingData.seats.length
+        ? bookingData.seats.map((seat) => String(seat || '').trim()).filter(Boolean)
+        : Array.isArray(bookingPayload?.seats)
+          ? bookingPayload.seats.map((seat) => String(seat || '').trim()).filter(Boolean)
+          : [];
+      const passengers = Array.isArray(bookingPayload?.passengers)
+        ? bookingPayload.passengers.map((passenger, index) => ({
+            bookingId: bookingIds[index] || bookingData?.booking_id || null,
+            seat: String(passenger?.seat || seats[index] || '').trim(),
+            firstName: String(passenger?.firstName || '').trim(),
+            lastName: String(passenger?.lastName || '').trim(),
+            fullName: [passenger?.firstName, passenger?.lastName].filter(Boolean).join(' ').trim(),
+            avatarUrl: ''
+          }))
+        : [];
+
+      return {
+        bookingId: bookingData?.booking_id || bookingIds[0] || null,
+        bookingIds,
+        routeName: bookingData?.route_name || selectedResult?.routeName || selectedResult?.routeText || 'Route',
+        busName: bookingData?.bus_name || selectedResult?.coachName || 'Elite Transport Coach',
+        seats,
+        seatCount: Number(bookingData?.seat_count || seats.length || passengers.length || 0),
+        totalPrice: Number(bookingData?.price || bookingPayload?.pricePaid || 0),
+        unitPrice: Number(bookingPayload?.unitPrice || selectedResult?.price || 0),
+        phone: String(bookingPayload?.phone || '').trim(),
+        email: String(bookingPayload?.email || '').trim(),
+        receiptUrl: bookingData?.receipt_url || null,
+        status: bookingData?.status || 'confirmed',
+        createdAt: new Date().toISOString(),
+        selection: {
+          routeText: selectedResult?.routeText || selectedResult?.routeName || bookingData?.route_name || 'Route',
+          coachName: selectedResult?.coachName || bookingData?.bus_name || 'Elite Transport Coach',
+          routeGroupLabel: selectedResult?.routeGroupLabel || 'Intercity',
+          originCity: selectedResult?.originCity || selectedResult?.departureStationName || '',
+          destinationCity: selectedResult?.destinationCity || selectedResult?.arrivalStationName || '',
+          departureDate: selectedResult?.departureDate || '',
+          departureTime: selectedResult?.departureTime || '',
+          arrivalTime: selectedResult?.arrivalTime || '',
+          durationLabel: selectedResult?.durationLabel || '',
+          durationMinutes: Number(selectedResult?.durationMinutes || 0),
+          rating: 4.9,
+          reviewCount: 94,
+          stopSummary: selectedResult?.stopSummary || 'Direct trip'
+        },
+        customerAvatar: '',
+        passengers
+      };
+    }
+
     async function confirmBooking() {
       let payload;
       try {
@@ -1115,6 +1169,8 @@
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || 'Failed to confirm booking');
 
+        const ticketPayload = buildConfirmedTicketPayload(payload, data, state.selectedResult);
+
         notify('success', `Booking confirmed: ${data.booking_id || 'ELITE booking created'}`);
         state.selectedSeats = [];
         state.lockId = '';
@@ -1130,7 +1186,10 @@
         await loadSeatMap(true).catch(() => {});
 
         if (typeof state.options.onBookingCreated === 'function') {
-          await state.options.onBookingCreated(data, state.selectedResult);
+          await state.options.onBookingCreated(data, {
+            selectedResult: state.selectedResult,
+            ticketPayload
+          });
         }
       } catch (error) {
         notify('error', error.message || 'Booking confirmation failed.');

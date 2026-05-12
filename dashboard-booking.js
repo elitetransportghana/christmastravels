@@ -14,12 +14,12 @@
     'Bolgatanga',
     'Campus',
     'Upper East',
-    'Upper West'
-    'Kintampo'
-    'Banda District'
-    'Banda District'
-    'Wenchi Municipal'
-    'Nkoranza North District'
+    'Upper West',
+    'Kintampo',
+    'Banda District',
+    'Banda District',
+    'Wenchi Municipal',
+    'Nkoranza North District',
     'Techiman Municipal'
   ];
   const SEAT_ROWS = [

@@ -1,5 +1,5 @@
 ﻿/* ============================================================
-   Elite Transport — Admin App CSS  v5
+   Elite Transport — Admin App CSS  v6
    Loads after: style.css, landing.css, find-bus.css, checkout.css
    ============================================================ */
 
@@ -888,4 +888,41 @@ body.app-page #app-admin-name { color: rgba(255,255,255,.75) !important; }
   .app-pax-detail-grid { grid-template-columns: 1fr; }
   .app-pax-trip-group__progress { display: none; }
   .app-kpi-card__value { font-size: 24px; }
+}
+
+/* ══════════════════════════════════════════
+   MOBILE NAV — dark panel to match dark navbar
+   (overrides landing.css white panel on mobile)
+══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  body.app-page .landing-navbar__panel {
+    background: #0f2318 !important;
+    border-top-color: rgba(255,255,255,.07) !important;
+    box-shadow: 0 22px 46px rgba(0,0,0,.4) !important;
+  }
+  body.app-page .landing-nav-links a {
+    color: rgba(255,255,255,.8) !important;
+    border-radius: 10px !important;
+    min-height: 52px !important;
+  }
+  body.app-page .landing-nav-links a:hover {
+    color: #ffffff !important;
+    background: rgba(255,255,255,.07) !important;
+  }
+  body.app-page .landing-auth {
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding-top: 16px;
+  }
+  body.app-page .landing-auth__link {
+    color: rgba(255,255,255,.65) !important;
+  }
+  /* hamburger bar lines — make white on dark bg */
+  body.app-page .nav-toggle.landing-nav-toggle {
+    border-color: rgba(255,255,255,.2) !important;
+    background: rgba(255,255,255,.06) !important;
+    color: #ffffff !important;
+  }
+  body.app-page .nav-toggle.landing-nav-toggle span {
+    background: #ffffff !important;
+  }
 }

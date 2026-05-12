@@ -1,0 +1,209 @@
+.first-booking-tour-launch {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 210;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 999px;
+    background: #112211;
+    color: #ffffff;
+    box-shadow: 0 18px 36px rgba(17, 34, 17, 0.22);
+    font-family: 'Montserrat', 'Segoe UI', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.first-booking-tour-launch i {
+    color: #8dd3bb;
+}
+
+.first-booking-tour-launch:hover,
+.first-booking-tour-launch:focus-visible {
+    background: #214535;
+    outline: none;
+}
+
+.first-booking-tour[hidden] {
+    display: none !important;
+}
+
+.first-booking-tour {
+    position: fixed;
+    inset: 0;
+    z-index: 260;
+}
+
+.first-booking-tour__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 19, 14, 0.64);
+    backdrop-filter: blur(2px);
+}
+
+.first-booking-tour__spotlight {
+    position: fixed;
+    border-radius: 22px;
+    border: 2px solid rgba(141, 211, 187, 0.95);
+    box-shadow: 0 0 0 9999px rgba(8, 19, 14, 0.52), 0 18px 36px rgba(9, 18, 14, 0.24);
+    pointer-events: none;
+    transition: top 0.18s ease, left 0.18s ease, width 0.18s ease, height 0.18s ease;
+}
+
+.first-booking-tour__card {
+    position: fixed;
+    width: min(360px, calc(100vw - 24px));
+    padding: 20px;
+    border-radius: 24px;
+    background: #ffffff;
+    color: #112211;
+    box-shadow: 0 24px 54px rgba(16, 24, 40, 0.24);
+    transition: top 0.18s ease, left 0.18s ease;
+}
+
+.first-booking-tour__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: #3c6f5d;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.first-booking-tour__eyebrow i {
+    color: #8dd3bb;
+}
+
+.first-booking-tour__title {
+    margin: 0;
+    color: #112211;
+    font-size: 1.34rem;
+    line-height: 1.15;
+}
+
+.first-booking-tour__text {
+    margin: 12px 0 0;
+    color: rgba(17, 34, 17, 0.76);
+    font-size: 0.95rem;
+    line-height: 1.62;
+}
+
+.first-booking-tour__progress {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.first-booking-tour__progress span {
+    flex: 1;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(17, 34, 17, 0.1);
+}
+
+.first-booking-tour__progress span.is-active {
+    background: #8dd3bb;
+}
+
+.first-booking-tour__actions {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.first-booking-tour__meta {
+    color: rgba(17, 34, 17, 0.54);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.first-booking-tour__buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.first-booking-tour__button,
+.first-booking-tour__button--ghost {
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 12px;
+    font-family: 'Montserrat', 'Segoe UI', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.first-booking-tour__button {
+    border: 0;
+    background: #112211;
+    color: #ffffff;
+}
+
+.first-booking-tour__button:hover,
+.first-booking-tour__button:focus-visible {
+    background: #214535;
+    outline: none;
+}
+
+.first-booking-tour__button--ghost {
+    border: 1px solid rgba(17, 34, 17, 0.12);
+    background: #ffffff;
+    color: #112211;
+}
+
+.first-booking-tour__button--ghost:hover,
+.first-booking-tour__button--ghost:focus-visible {
+    background: #f6faf8;
+    outline: none;
+}
+
+.first-booking-tour-target {
+    position: relative;
+    z-index: 261 !important;
+}
+
+@media (max-width: 640px) {
+    .first-booking-tour-launch {
+        right: 12px;
+        left: 12px;
+        bottom: 12px;
+        justify-content: center;
+    }
+
+    .first-booking-tour__card {
+        left: 12px !important;
+        right: 12px;
+        bottom: 12px;
+        top: auto !important;
+        width: auto;
+        max-height: min(56vh, 420px);
+        overflow: auto;
+    }
+
+    .first-booking-tour__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .first-booking-tour__buttons {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .first-booking-tour__button,
+    .first-booking-tour__button--ghost {
+        flex: 1;
+    }
+}

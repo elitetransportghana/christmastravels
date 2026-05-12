@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin · Elite Transport</title>
-  <link rel="stylesheet" href="../style.css?v=13" />
-  <link rel="stylesheet" href="../landing.css?v=20" />
-  <link rel="stylesheet" href="../find-bus.css?v=9" />
-  <link rel="stylesheet" href="../checkout.css?v=10" />
-  <link rel="stylesheet" href="../dashboard-booking.css" />
-  <link rel="stylesheet" href="./app.css?v=5" />
+  <link rel="stylesheet" href="../../public/style.css?v=13" />
+  <link rel="stylesheet" href="../../public/landing.css?v=20" />
+  <link rel="stylesheet" href="../../public/find-bus.css?v=9" />
+  <link rel="stylesheet" href="../../public/checkout.css?v=10" />
+  <link rel="stylesheet" href="../../public/dashboard-booking.css" />
+  <link rel="stylesheet" href="./app.css?v=6" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
 </head>
 <body class="landing-page app-page">
@@ -19,18 +19,18 @@
     <div class="container landing-navbar__shell">
       <a href="../index.html" class="elite-brand elite-brand--mobile">
         <span class="elite-brand__mark">
-          <img src="../ELITE TRANSPORT.png" alt="Elite Transport" />
+          <img src="./ELITE TRANSPORT.png" alt="Elite Transport" />
         </span>
       </a>
       <button class="nav-toggle landing-nav-toggle" aria-label="Toggle navigation"
-              onclick="this.closest('nav').querySelector('[data-nav-panel]').classList.toggle('is-open')">
+              onclick="this.closest('nav').querySelector('[data-nav-panel]').classList.toggle('open')">
         <span></span><span></span><span></span>
       </button>
       <div class="landing-navbar__panel" id="admin-app-nav" data-nav-panel>
         <ul class="nav-links landing-nav-links"></ul>
         <a href="../index.html" class="elite-brand elite-brand--desktop">
           <span class="elite-brand__mark">
-            <img src="../ELITE TRANSPORT.png" alt="Elite Transport" />
+            <img src="./ELITE TRANSPORT.png" alt="Elite Transport" />
           </span>
         </a>
         <div class="landing-auth">
@@ -319,7 +319,7 @@
     </div>
   </div>
 
-  <script src="../dashboard-booking.js"></script>
+  <script src="../../public/dashboard-booking.js"></script>
   <script src="./app.js?v=3"></script>
 </body>
 </html>

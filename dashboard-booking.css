@@ -1,0 +1,353 @@
+.dashboard-booking-shell {
+  display: grid;
+  gap: 24px;
+}
+
+.dashboard-booking-search-shell,
+.dashboard-booking-results,
+.dashboard-booking-checkout {
+  border: 1px solid rgba(17, 34, 17, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 42px rgba(16, 24, 40, 0.08);
+}
+
+.dashboard-booking-search-shell {
+  padding: 24px;
+}
+
+.dashboard-booking-search-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.dashboard-booking-search-head h3,
+.dashboard-booking-section-head h4 {
+  margin: 6px 0 8px;
+  color: var(--brand-950, #112211);
+}
+
+.dashboard-booking-search-head p,
+.dashboard-booking-section-head__eyebrow,
+.dashboard-booking-results__meta,
+.dashboard-booking-empty span {
+  color: rgba(17, 34, 17, 0.68);
+}
+
+.dashboard-booking-eyebrow,
+.dashboard-booking-section-head__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(141, 211, 187, 0.2);
+  color: #214535;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dashboard-booking-flash {
+  min-width: 220px;
+  max-width: 320px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.dashboard-booking-flash.is-success {
+  background: #ecf8f1;
+  color: #156f48;
+}
+
+.dashboard-booking-flash.is-error {
+  background: #fdebec;
+  color: #b42318;
+}
+
+.dashboard-booking-flash.is-info {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.dashboard-booking-search-card {
+  margin: 0;
+}
+
+.dashboard-booking-layout {
+  display: grid;
+  /* Use fr-only columns — no hard minimums that overflow at laptop widths */
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 20px;
+  align-items: start;
+  min-width: 0;
+}
+
+.dashboard-booking-results,
+.dashboard-booking-checkout {
+  padding: 20px;
+  min-width: 0;   /* prevent grid blowout */
+  overflow: hidden;
+}
+
+.dashboard-booking-checkout {
+  position: sticky;
+  top: 18px;
+}
+
+.dashboard-booking-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.dashboard-booking-sort {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dashboard-booking-sort__btn {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(17, 34, 17, 0.08);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #112211;
+  font-weight: 700;
+}
+
+.dashboard-booking-sort__btn.is-active {
+  background: #112211;
+  border-color: #112211;
+  color: #ffffff;
+}
+
+.dashboard-booking-results__list,
+.dashboard-booking-stage {
+  display: grid;
+  gap: 18px;
+}
+
+.dashboard-booking-result {
+  border: 1px solid rgba(17, 34, 17, 0.08);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.dashboard-booking-result.is-selected {
+  border-color: rgba(141, 211, 187, 0.9);
+  box-shadow: 0 14px 28px rgba(16, 24, 40, 0.08);
+}
+
+.dashboard-booking-result__cta {
+  border: 1px solid rgba(17, 34, 17, 0.08);
+}
+
+.dashboard-booking-result__cta[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dashboard-booking-empty {
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px dashed rgba(17, 34, 17, 0.14);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(245, 251, 248, 0.9), rgba(255, 255, 255, 0.98));
+  text-align: center;
+  padding: 28px;
+}
+
+.dashboard-booking-empty i {
+  font-size: 1.5rem;
+  color: #214535;
+}
+
+.dashboard-booking-empty strong {
+  color: #112211;
+}
+
+.dashboard-booking-empty--results {
+  min-height: 220px;
+}
+
+.dashboard-booking-summary-card .checkout-summary-card__content {
+  padding: 28px;
+}
+
+.dashboard-booking-summary-card .checkout-summary-card__divider {
+  margin: 16px 0;
+}
+
+.dashboard-booking-summary-card .checkout-summary-card__pricing h4 {
+  margin-bottom: 14px;
+}
+
+.dashboard-booking-checkout .checkout-payment-card,
+.dashboard-booking-checkout .checkout-seat-card,
+.dashboard-booking-checkout .checkout-passenger-card,
+.dashboard-booking-checkout .checkout-trip-card,
+.dashboard-booking-checkout .checkout-summary-card {
+  margin: 0;
+}
+
+.dashboard-booking-checkout .checkout-payment-note {
+  margin-top: 12px;
+}
+
+.dashboard-booking-checkout .checkout-pay-btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dashboard-booking-checkout .checkout-passenger-manifest {
+  margin-top: 16px;
+}
+
+.dashboard-booking-checkout .checkout-seat-summary__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dashboard-booking-checkout .checkout-seat-summary__hint {
+  width: 100%;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-booking-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-booking-checkout {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboard-booking-search-shell,
+  .dashboard-booking-results,
+  .dashboard-booking-checkout {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .dashboard-booking-search-head,
+  .dashboard-booking-section-head {
+    flex-direction: column;
+  }
+
+  .dashboard-booking-flash {
+    max-width: none;
+    width: 100%;
+  }
+}
+
+/* ── Dashboard-context overrides ──────────────────────────────
+   Checkout cards are designed as standalone page cards.
+   Inside the dashboard panel they are already framed — remove
+   the floating shadow and tighten padding so they don't look
+   like cards-inside-cards.
+────────────────────────────────────────────────────────────── */
+.dashboard-booking-checkout .checkout-trip-card,
+.dashboard-booking-checkout .checkout-seat-card,
+.dashboard-booking-checkout .checkout-passenger-card,
+.dashboard-booking-checkout .checkout-payment-card,
+.dashboard-booking-checkout .checkout-summary-card,
+.dashboard-booking-checkout .checkout-plan-card,
+.dashboard-booking-checkout .checkout-auth-card {
+  box-shadow: none;
+  border: 1px solid rgba(17,34,17,.07);
+}
+
+/* Tighten padding — outer panel already has 24 px */
+.dashboard-booking-checkout .checkout-trip-card {
+  padding: 18px 20px 20px;
+}
+.dashboard-booking-checkout .checkout-seat-card,
+.dashboard-booking-checkout .checkout-passenger-card,
+.dashboard-booking-checkout .checkout-payment-card,
+.dashboard-booking-checkout .checkout-auth-card {
+  padding: 16px;
+}
+
+/* The h2 headings inside checkout cards are page-scale (1.9 rem).
+   Scale them down for the compact dashboard frame. */
+.dashboard-booking-checkout .checkout-section-head h2,
+.dashboard-booking-checkout .checkout-payment-card h2,
+.dashboard-booking-checkout .checkout-passenger-card h2,
+.dashboard-booking-results .checkout-section-head h2 {
+  font-size: 1.1rem;
+}
+
+/* Trip-card price — scale down from 2.2 rem */
+.dashboard-booking-checkout .checkout-trip-card__price {
+  font-size: 1.4rem;
+}
+
+/* Seat map — remove extra top gap */
+.dashboard-booking-checkout .checkout-seat-card__bus {
+  margin-top: 8px;
+  padding: 14px;
+  /* Uncap width — stage is now single-column so no overflow risk */
+  max-width: 100%;
+}
+
+/* Constrain individual seat size so they don't blow up when the bus
+   map takes the full single-column width on a wide PC panel.
+   aspect-ratio:1/1 on .app-seat means tall seats = huge on wide panels. */
+.dashboard-booking-checkout .checkout-seat-card .app-seat {
+  max-width: 56px;
+  max-height: 56px;
+}
+
+/* Seat stage: collapse to single column always in the dashboard.
+   The two-column layout (bus + panel) was designed for a full-width
+   checkout page. Inside the dashboard panel the 250px minimum on the
+   right column overflows the card and causes cards to overlay each other. */
+.dashboard-booking-checkout .checkout-seat-stage {
+  grid-template-columns: 1fr;
+}
+
+/* Results panel — sort strip has its own page-scale shadow;
+   look flat inside the already-framed results shell */
+.dashboard-booking-results .findbus-sort-strip {
+  box-shadow: none;
+  border: 1px solid rgba(17,34,17,.07);
+}
+
+/* Result cards: the 148px brand column is designed for a full-width
+   search results page. In the narrow dashboard results panel it wastes
+   space and cramps the option row. Shrink it. */
+.dashboard-booking-results .bus-result-card {
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 14px;
+  padding: 16px 14px;
+  box-shadow: 0 2px 10px rgba(16,24,40,.06);
+}
+.dashboard-booking-results .bus-result-card__brand img {
+  max-width: 72px;
+  height: 52px;
+}
+.dashboard-booking-results .bus-result-card__brand-name {
+  font-size: 0.65rem;
+}
+/* Option row: drop the checkbox column + compress duration column at this width */
+.dashboard-booking-results .bus-result-card__option {
+  grid-template-columns: minmax(0, 1.4fr) 0.7fr 0.7fr;
+  gap: 8px;
+  padding: 10px 10px;
+}

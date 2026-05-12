@@ -15,6 +15,12 @@
     'Campus',
     'Upper East',
     'Upper West'
+    'Kintampo'
+    'Banda District'
+    'Banda District'
+    'Wenchi Municipal'
+    'Nkoranza North District'
+    'Techiman Municipal'
   ];
   const SEAT_ROWS = [
     [0, 1, 0, 0, 0],

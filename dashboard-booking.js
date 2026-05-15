@@ -849,7 +849,10 @@
       try {
         const response = await fetch(`${apiBase()}/bus/${trip.busId}/lock-seat`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || ''}`
+          },
           body: JSON.stringify({ seat: seatLabel, tripId: trip.tripId, lockId: state.lockId })
         });
         const data = await response.json().catch(() => ({}));

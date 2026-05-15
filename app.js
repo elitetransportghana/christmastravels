@@ -143,9 +143,51 @@
     return { from: '', to: '' };
   }
 
+  function safeParseJson(value) {
+    try {
+      return JSON.parse(value);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function escapeHtmlAttr(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function normalizeBookingNumericId(value) {
+    const raw = String(value || '').trim().replace(/^ELITE-/i, '');
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  }
+
+  function updateStoredTicketReceiptUrl(bookingRef, receiptUrl) {
+    if (!receiptUrl) return;
+    const stored = safeParseJson(sessionStorage.getItem(TICKET_STORAGE_KEY));
+    if (!stored) return;
+
+    const normalizedRef = String(bookingRef || '').trim();
+    const bookingIds = Array.isArray(stored.bookingIds) ? stored.bookingIds.map((value) => String(value || '').trim()) : [];
+    if (
+      normalizedRef
+      && normalizedRef !== String(stored.bookingId || '').trim()
+      && !bookingIds.includes(normalizedRef)
+    ) {
+      return;
+    }
+
+    stored.receiptUrl = receiptUrl;
+    sessionStorage.setItem(TICKET_STORAGE_KEY, JSON.stringify(stored));
+  }
+
   function buildTicketPageUrl(ticketPayload) {
     const ref = String(ticketPayload?.bookingId || '').trim();
-    return `../ticket.html${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
+    return `./ticket.html${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
   }
 
   function storeTicketPayload(ticketPayload, markFresh = false) {
@@ -162,7 +204,8 @@
     if (!booking) return null;
     const bookingId = String(booking.booking_id || booking.ref || `ELITE-${booking.id || ''}`).trim();
     const routeName = String(booking.route_name || booking.routeName || 'Elite Transport Route').trim();
-    const routeParts = splitRouteText(routeName);
+    const routeText = String(booking.route_text || booking.routeText || routeName).trim();
+    const routeParts = splitRouteText(routeText || routeName);
     const seats = String(booking.seat_number || booking.seat || booking.seats || '')
       .split(',')
       .map((seat) => seat.trim())
@@ -170,6 +213,8 @@
     const firstName = String(booking.first_name || booking.firstName || '').trim();
     const lastName = String(booking.last_name || booking.lastName || '').trim();
     const fullName = String(booking.passenger_name || booking.passengerName || `${firstName} ${lastName}`).trim() || 'Passenger 1';
+    const originCity = String(booking.origin_city || booking.originCity || routeParts.from || '').trim();
+    const destinationCity = String(booking.destination_city || booking.destinationCity || routeParts.to || '').trim();
 
     return {
       bookingId,
@@ -185,11 +230,11 @@
       status: String(booking.status || 'confirmed').trim(),
       createdAt: String(booking.created_at || booking.createdAt || new Date().toISOString()).trim(),
       selection: {
-        routeText: routeName,
+        routeText,
         coachName: String(booking.bus_name || booking.busName || 'Elite Transport Express').trim(),
         routeGroupLabel: String(booking.route_group_label || booking.routeGroupLabel || 'Intercity').trim(),
-        originCity: routeParts.from || '',
-        destinationCity: routeParts.to || '',
+        originCity,
+        destinationCity,
         departureDate: String(booking.departure_date || booking.departureDate || '').trim(),
         departureTime: String(booking.departure_time || booking.departureTime || '').trim(),
         arrivalTime: String(booking.arrival_time || booking.arrivalTime || '').trim(),
@@ -214,7 +259,12 @@
   function openTicketReceipt(ticketPayload, label) {
     if (!ticketPayload) return;
     storeTicketPayload(ticketPayload, false);
-    openReceiptModal(buildTicketPageUrl(ticketPayload), label || `Ticket - ${ticketPayload.bookingId || 'Booking'}`);
+    openReceiptModal(
+      buildTicketPageUrl(ticketPayload),
+      label || `Ticket - ${ticketPayload.bookingId || 'Booking'}`,
+      ticketPayload.receiptUrl || null,
+      ticketPayload.bookingId || null
+    );
   }
 
   function switchTab(name) {
@@ -418,8 +468,11 @@
       </button>
       <button class="app-btn app-btn--ghost app-btn--sm"
         onclick="adminApp.viewReceipt('${b.id}')">
-        <i class="fa-solid fa-ticket"></i> Receipt
+        <i class="fa-solid fa-ticket"></i> Ticket
       </button>
+      ${b.receipt_url ? `<a class="app-btn app-btn--ghost app-btn--sm" href="${escapeHtmlAttr(b.receipt_url)}" target="_blank" rel="noopener">
+        <i class="fa-solid fa-file-pdf"></i> Saved PDF
+      </a>` : ''}
     </div>
   </div>
 </div>`;
@@ -874,6 +927,39 @@
     closeReceiptModal
   };
 
+  function setReceiptPdfLink(pdfUrl) {
+    const pdfBtn = document.getElementById('app-receipt-modal-pdf-btn');
+    if (!pdfBtn) return;
+    if (pdfUrl) {
+      pdfBtn.href = pdfUrl;
+      pdfBtn.hidden = false;
+    } else {
+      pdfBtn.href = '#';
+      pdfBtn.hidden = true;
+    }
+  }
+
+  function handleReceiptSavedMessage(event) {
+    const data = event?.data || {};
+    if (data.type !== 'admin-receipt-saved' || !data.receiptUrl) return;
+
+    const bookingId = normalizeBookingNumericId(data.bookingId);
+    if (!bookingId) return;
+
+    const booking = (S.passengers.list || []).find((item) => Number(item.id) === Number(bookingId));
+    if (booking) {
+      booking.receipt_url = data.receiptUrl;
+    }
+
+    const modal = document.getElementById('app-receipt-modal');
+    if (modal && String(modal.dataset.bookingId || '') === String(bookingId)) {
+      setReceiptPdfLink(data.receiptUrl);
+    }
+
+    updateStoredTicketReceiptUrl(`ELITE-${bookingId}`, data.receiptUrl);
+    toast('Ticket PDF saved for this booking.');
+  }
+
   function toEmbedUrl(url) {
     if (!url) return '';
     const m = url.match(/drive\.google\.com\/file\/d\/([^/?]+)/);
@@ -881,7 +967,7 @@
     return url;
   }
 
-  function openReceiptModal(url, label) {
+  function openReceiptModal(url, label, pdfUrl = null, bookingRef = null) {
     const modal = document.getElementById('app-receipt-modal');
     const iframe = document.getElementById('app-receipt-modal-iframe');
     const openBtn = document.getElementById('app-receipt-modal-open-btn');
@@ -890,6 +976,8 @@
     if (title) title.textContent = label || 'Booking Receipt';
     if (iframe) iframe.src = toEmbedUrl(url);
     if (openBtn) openBtn.href = url;
+    modal.dataset.bookingId = normalizeBookingNumericId(bookingRef) || '';
+    setReceiptPdfLink(pdfUrl);
     modal.hidden = false;
   }
 
@@ -897,13 +985,19 @@
     const modal = document.getElementById('app-receipt-modal');
     const iframe = document.getElementById('app-receipt-modal-iframe');
     if (iframe) iframe.src = '';
-    if (modal) modal.hidden = true;
+    if (modal) {
+      modal.hidden = true;
+      modal.dataset.bookingId = '';
+    }
+    setReceiptPdfLink(null);
   }
 
   /* ════════════════════════════════════════════════
      INIT
   ════════════════════════════════════════════════ */
   function bindEvents() {
+    window.addEventListener('message', handleReceiptSavedMessage);
+
     // Tab buttons
     document.querySelectorAll('.app-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => switchTab(btn.dataset.tab));

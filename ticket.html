@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Ticket | Elite Transport</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="../style.css?v=13">
+  <link rel="stylesheet" href="../ticket.css?v=3">
+  <link rel="stylesheet" href="ticket-admin.css?v=1">
+  <script>
+    window.ELITE_TICKET_CONFIG = {
+      assetBase: '../',
+      searchPage: '../search.html',
+      trackPage: '../track.html',
+      resolveTicketPayload: async function ({ ref }) {
+        const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || '';
+        const normalizedRef = String(ref || '').trim().replace(/^ELITE-/i, '');
+        if (!normalizedRef || !token) return null;
+
+        const response = await fetch(`https://realeliteweb-app.elitetransportghana.workers.dev/api/admin/bookings/${encodeURIComponent(normalizedRef)}/ticket`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          cache: 'no-store'
+        });
+        if (!response.ok) return null;
+
+        const data = await response.json().catch(() => null);
+        return data?.ticket || null;
+      }
+    };
+    window.getAuthToken = window.getAuthToken || function () {
+      return localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || '';
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="../toast.js"></script>
+</head>
+<body class="ticket-page admin-ticket-page">
+  <header class="admin-ticket-topbar">
+    <div class="container admin-ticket-topbar__inner">
+      <div class="admin-ticket-topbar__copy">
+        <span class="admin-ticket-topbar__eyebrow">Shared ticket view</span>
+        <h1>Admin passenger ticket</h1>
+        <p>Preview the same ticket design passengers see, then save the rendered PDF back to the booking record.</p>
+      </div>
+      <div class="admin-ticket-topbar__actions">
+        <a href="./app.html?tab=passengers" class="admin-ticket-topbar__link">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Back to passengers</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="ticket-main admin-ticket-main">
+    <section class="ticket-shell admin-ticket-shell">
+      <div class="container admin-ticket-canvas" id="ticketCapture">
+        <div class="admin-ticket-ribbon">
+          <div class="admin-ticket-ribbon__copy">
+            <strong>Admin-generated ticket PDF</strong>
+            <span>The download button below saves this same live view to the receipt store.</span>
+          </div>
+          <span class="admin-ticket-ribbon__status" id="admin-ticket-save-status">Ready to save</span>
+        </div>
+
+        <nav class="ticket-breadcrumbs" aria-label="Breadcrumb">
+          <a href="./app.html?tab=passengers">Admin</a>
+          <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+          <a href="../search.html" id="ticketBackToSearch">Search</a>
+          <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+          <span id="ticketBreadcrumbRoute">Ticket</span>
+        </nav>
+
+        <header class="ticket-header">
+          <div class="ticket-header__copy">
+            <h1 id="ticketTitle">Elite Transport Express</h1>
+            <p class="ticket-header__location" id="ticketLocation">
+              <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              <span>Loading confirmed ticket...</span>
+            </p>
+          </div>
+
+          <div class="ticket-header__actions">
+            <div class="ticket-header__price" id="ticketPrice">GHS 0</div>
+            <div class="ticket-header__buttons">
+              <button type="button" class="ticket-icon-button" id="ticketShare" aria-label="Share ticket">
+                <i class="fa-solid fa-share-nodes"></i>
+              </button>
+              <button type="button" class="ticket-download-button" id="ticketDownload">Download + Save PDF</button>
+            </div>
+          </div>
+        </header>
+
+        <section class="ticket-stack" id="ticketStack">
+          <article class="ticket-empty-card" id="ticketEmptyState" hidden>
+            <div class="ticket-empty-card__icon">
+              <i class="fa-solid fa-ticket"></i>
+            </div>
+            <h2>No confirmed ticket found</h2>
+            <p>Open a passenger ticket from the admin desk first so the shared ticket renderer has a booking to load.</p>
+            <div class="ticket-empty-card__actions">
+              <a href="./app.html?tab=passengers" class="ticket-empty-card__button">Back to passengers</a>
+              <a href="../track.html" class="ticket-empty-card__link">Track booking</a>
+            </div>
+          </article>
+        </section>
+
+        <section class="ticket-terms">
+          <h2>Admin Notes</h2>
+
+          <div class="ticket-terms__block">
+            <h3>Ticket source</h3>
+            <ul>
+              <li>This page uses the same ticket renderer and booking payload structure as the customer ticket experience.</li>
+              <li>Use the admin download button when you want the rendered PDF attached to the booking receipt record.</li>
+            </ul>
+          </div>
+
+          <div class="ticket-terms__block">
+            <h3>Receipt storage</h3>
+            <ul>
+              <li>Saved PDFs are written back to the booking receipt store and can be reopened later from the admin passenger record.</li>
+              <li>If a passenger already has a stored PDF, the admin desk keeps that link alongside the live ticket page.</li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="../ticket.js?v=3"></script>
+  <script src="ticket-admin.js?v=1"></script>
+</body>
+</html>

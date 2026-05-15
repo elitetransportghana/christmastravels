@@ -744,6 +744,8 @@
       return;
     }
 
+
+
     const token = await ensureAdminToken();
     if (!token) {
       notify('Admin sign-in is required.', false);

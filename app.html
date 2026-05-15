@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="find-bus.css?v=9" />
   <link rel="stylesheet" href="checkout.css?v=10" />
   <link rel="stylesheet" href="dashboard-booking.css" />
-  <link rel="stylesheet" href="app.css?v=6" />
+  <link rel="stylesheet" href="app.css?v=7" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
 </head>
 <body class="landing-page app-page">
@@ -43,6 +43,19 @@
   <!-- End Navbar -->
 
   <div class="app-shell">
+
+    <section class="app-shell__hero">
+      <div class="app-shell__hero-copy">
+        <span class="app-shell__eyebrow">Real admin workspace</span>
+        <h1>Tickets, passengers, and live trip control.</h1>
+        <p>Open the shared public ticket view from admin, keep saved PDFs attached to each booking, and manage the desk with cleaner spacing on every screen.</p>
+      </div>
+      <div class="app-shell__hero-badges">
+        <span class="app-shell__hero-chip"><i class="fa-solid fa-file-pdf"></i> Saved receipts</span>
+        <span class="app-shell__hero-chip"><i class="fa-solid fa-users"></i> Passenger tools</span>
+        <span class="app-shell__hero-chip"><i class="fa-solid fa-mobile-screen-button"></i> Mobile-ready desk</span>
+      </div>
+    </section>
 
     <!-- ════ Tab strip ════ -->
     <nav class="app-tab-strip app-tabs-4" role="tablist" id="admin-tab-strip">
@@ -128,7 +141,7 @@
           <h2>Passengers</h2>
           <p id="pax-summary-text">Filter by trip to view passengers</p>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div class="app-inline-actions">
           <button class="app-btn app-btn--ghost app-btn--sm" id="pax-select-all-btn" style="display:none;">
             <i class="fa-solid fa-check-double"></i> Select all
           </button>
@@ -143,20 +156,38 @@
 
       <!-- Filters -->
       <div class="app-filter-strip">
-        <select id="pax-route-filter" style="min-width:200px;">
-          <option value="">All routes</option>
-        </select>
-        <input type="date" id="pax-date-from" title="From date" />
-        <input type="date" id="pax-date-to" title="To date" />
-        <select id="pax-status-filter">
-          <option value="">All statuses</option>
-          <option value="boarded">Boarded</option>
-          <option value="pending">Pending</option>
-        </select>
-        <input type="search" id="pax-search" placeholder="Search name / phone…" style="min-width:180px;" />
-        <button class="app-btn app-btn--primary app-btn--sm" id="pax-apply-filter">
-          <i class="fa-solid fa-filter"></i> Apply
-        </button>
+        <label class="app-filter-field">
+          <span>Route</span>
+          <select id="pax-route-filter">
+            <option value="">All routes</option>
+          </select>
+        </label>
+        <label class="app-filter-field">
+          <span>From</span>
+          <input type="date" id="pax-date-from" title="From date" />
+        </label>
+        <label class="app-filter-field">
+          <span>To</span>
+          <input type="date" id="pax-date-to" title="To date" />
+        </label>
+        <label class="app-filter-field">
+          <span>Status</span>
+          <select id="pax-status-filter">
+            <option value="">All statuses</option>
+            <option value="boarded">Boarded</option>
+            <option value="pending">Pending</option>
+          </select>
+        </label>
+        <label class="app-filter-field app-filter-field--search">
+          <span>Search</span>
+          <input type="search" id="pax-search" placeholder="Search name / phone…" />
+        </label>
+        <div class="app-filter-field app-filter-field--actions">
+          <span>Apply</span>
+          <button class="app-btn app-btn--primary app-btn--sm" id="pax-apply-filter">
+            <i class="fa-solid fa-filter"></i> Apply filters
+          </button>
+        </div>
       </div>
 
       <!-- Passenger list -->
@@ -173,7 +204,7 @@
           <h2>Trips</h2>
           <p id="trips-summary-text">Active and recent trips</p>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div class="app-inline-actions">
           <a href="./add-trip.html" class="app-btn app-btn--primary app-btn--sm">
             <i class="fa-solid fa-plus"></i> Add Trip
           </a>
@@ -279,10 +310,16 @@
   <div id="app-receipt-modal" class="app-receipt-modal" hidden>
     <div class="app-receipt-modal__box">
       <div class="app-receipt-modal__head">
-        <span id="app-receipt-modal-title" class="app-receipt-modal__title">Booking Receipt</span>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div class="app-receipt-modal__title-wrap">
+          <span id="app-receipt-modal-title" class="app-receipt-modal__title">Passenger Ticket</span>
+          <span class="app-receipt-modal__sub">Live preview using the shared ticket renderer.</span>
+        </div>
+        <div class="app-receipt-modal__actions">
+          <a id="app-receipt-modal-pdf-btn" href="#" target="_blank" rel="noopener" class="app-btn app-btn--ghost app-btn--sm" hidden>
+            <i class="fa-solid fa-file-pdf"></i> Saved PDF
+          </a>
           <a id="app-receipt-modal-open-btn" href="#" target="_blank" rel="noopener" class="app-btn app-btn--primary app-btn--sm">
-            <i class="fa-solid fa-print"></i> Print / Download
+            <i class="fa-solid fa-up-right-from-square"></i> Open ticket
           </a>
           <button class="app-btn app-btn--ghost app-btn--sm" onclick="adminApp.closeReceiptModal()" aria-label="Close">
             <i class="fa-solid fa-xmark"></i>
@@ -320,6 +357,6 @@
   </div>
 
   <script src="dashboard-booking.js"></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

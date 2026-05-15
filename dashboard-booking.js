@@ -851,7 +851,7 @@
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || ''}`
+            'Authorization': `Bearer ${(new URLSearchParams(window.location.hash.replace(/^#/, ''))).get('token') || localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || ''}`
           },
           body: JSON.stringify({ seat: seatLabel, tripId: trip.tripId, lockId: state.lockId })
         });

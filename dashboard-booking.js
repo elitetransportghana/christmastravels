@@ -20,7 +20,9 @@
     'Banda District',
     'Wenchi Municipal',
     'Nkoranza North District',
-    'Techiman Municipal'
+    'Techiman Municipal',
+    'St. John Bosco',
+    'Tumu'
   ];
   const SEAT_ROWS = [
     [0, 1, 0, 0, 0],

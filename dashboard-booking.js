@@ -259,7 +259,7 @@
                 <div class="checkout-trip-card__meta">
                   <div class="checkout-brand-block">
                     <div class="checkout-brand-block__logo">
-                      <img src="../ELITE TRANSPORT.png" alt="Elite Transport logo">
+                      <img src="./ELITE TRANSPORT.png" alt="Elite Transport logo">
                     </div>
                     <div class="checkout-brand-block__copy">
                       <strong data-db="operator-name">Elite Transport</strong>
@@ -937,7 +937,7 @@
         return `
           <article class="bus-result-card dashboard-booking-result${selected ? ' is-selected' : ''}">
             <div class="bus-result-card__brand">
-              <img src="${escapeHtml(trip.operatorLogo || '../ELITE TRANSPORT.png')}" alt="${escapeHtml(trip.operatorName)} logo" onerror="this.src='../ELITE TRANSPORT.png'">
+              <img src="${escapeHtml(trip.operatorLogo || './ELITE TRANSPORT.png')}" alt="${escapeHtml(trip.operatorName)} logo" onerror="this.src='./ELITE TRANSPORT.png'">
               <span class="bus-result-card__brand-name">${escapeHtml(trip.operatorName)}</span>
             </div>
 

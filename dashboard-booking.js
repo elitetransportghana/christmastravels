@@ -260,7 +260,7 @@
                 <div class="checkout-trip-card__meta">
                   <div class="checkout-brand-block">
                     <div class="checkout-brand-block__logo">
-                      <img src="ELITE TRANSPORT.png" alt="Elite Transport logo">
+                      <img src="../ELITE TRANSPORT.png" alt="Elite Transport logo">
                     </div>
                     <div class="checkout-brand-block__copy">
                       <strong data-db="operator-name">Elite Transport</strong>
@@ -876,7 +876,7 @@
       try {
         const response = await fetch(`${apiBase()}/bus/${trip.busId}/lock-seat`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders() || { 'Content-Type': 'application/json' },
           body: JSON.stringify({ seat: seatLabel, tripId: trip.tripId, lockId: state.lockId })
         });
         const data = await response.json().catch(() => ({}));
@@ -902,7 +902,7 @@
       try {
         await fetch(`${apiBase()}/bus/${trip.busId}/unlock-seat`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders() || { 'Content-Type': 'application/json' },
           body: JSON.stringify({ seat: seatLabel, tripId: trip.tripId, lockId: state.lockId })
         });
       } finally {
@@ -927,7 +927,7 @@
         try {
           await fetch(`${apiBase()}/bus/${trip.busId}/unlock-seat`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders() || { 'Content-Type': 'application/json' },
             body: JSON.stringify({ seat: seatLabel, tripId: trip.tripId, lockId: state.lockId })
           });
         } catch (_err) {

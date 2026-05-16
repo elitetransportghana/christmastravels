@@ -386,7 +386,7 @@ function buildFallbackTicketPayload(booking, ref, phone) {
     const passengerName = String(
         booking.passenger_name
         || booking.passengerName
-        || `${booking.passenger?.firstName || booking.first_name || ''} ${booking.passenger?.lastName || booking.last_name || ''}`
+        || `${(booking.passenger && booking.passenger.firstName) || booking.first_name || ''} ${(booking.passenger && booking.passenger.lastName) || booking.last_name || ''}`
     ).trim();
 
     return {

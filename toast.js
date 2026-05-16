@@ -289,7 +289,7 @@ class Toast {
                     width: 100%;
                 }
             }
-        \`;
+        `;
         document.head.appendChild(style);
     }
 }
@@ -310,6 +310,6 @@ function notifyRich(title, body, type = 'info', duration = 4800) {
         return;
     }
     if (window.toast && typeof window.toast[type] === 'function') {
-        window.toast[type](`\${title} — \${body}`, duration);
+        window.toast[type](`${title} — ${body}`, duration);
     }
 }

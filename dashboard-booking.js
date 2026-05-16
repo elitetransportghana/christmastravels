@@ -14,15 +14,7 @@
     'Bolgatanga',
     'Campus',
     'Upper East',
-    'Upper West',
-    'Kintampo',
-    'Banda District',
-    'Banda District',
-    'Wenchi Municipal',
-    'Nkoranza North District',
-    'Techiman Municipal',
-    'St. John Bosco',
-    'Tumu'
+    'Upper West'
   ];
   const SEAT_ROWS = [
     [0, 1, 0, 0, 0],
@@ -261,7 +253,7 @@
                 <div class="checkout-trip-card__meta">
                   <div class="checkout-brand-block">
                     <div class="checkout-brand-block__logo">
-                      <img src="./ELITE TRANSPORT.png" alt="Elite Transport logo">
+                      <img src="../ELITE TRANSPORT.png" alt="Elite Transport logo">
                     </div>
                     <div class="checkout-brand-block__copy">
                       <strong data-db="operator-name">Elite Transport</strong>
@@ -617,22 +609,37 @@
 
       ensurePassengerDrafts();
 
-      elements.passengerManifest.innerHTML = state.selectedSeats.map((seat, index) => {
+      // Clear empty-state placeholder if present
+      if (elements.passengerManifest.querySelector('.checkout-empty-state')) {
+        elements.passengerManifest.innerHTML = '';
+      }
+
+      // Remove rows for seats that are no longer selected
+      elements.passengerManifest.querySelectorAll('.checkout-passenger-seat[data-seat-id]').forEach((row) => {
+        if (!state.selectedSeats.includes(row.getAttribute('data-seat-id'))) row.remove();
+      });
+
+      // Add rows for newly selected seats (never touch existing ones = preserves focus)
+      state.selectedSeats.forEach((seat, index) => {
+        let row = elements.passengerManifest.querySelector(`.checkout-passenger-seat[data-seat-id="${seat}"]`);
         const draft = state.seatDrafts[seat] || { firstName: '', lastName: '' };
-        return `
-          <article class="checkout-passenger-seat">
+
+        if (!row) {
+          row = document.createElement('article');
+          row.className = 'checkout-passenger-seat';
+          row.setAttribute('data-seat-id', seat);
+          row.innerHTML = `
             <div class="checkout-passenger-seat__head">
               <div class="checkout-passenger-seat__identity">
                 <div class="checkout-passenger-seat__meta">
-                  <strong>Passenger ${index + 1}</strong>
-                  <span>${index === 0 ? 'Primary passenger for this booking' : 'Additional passenger'}</span>
+                  <strong data-pax-label></strong>
+                  <span data-pax-sub></span>
                 </div>
               </div>
               <div class="checkout-passenger-seat__side">
                 <span class="checkout-passenger-seat__badge">Seat ${escapeHtml(seat)}</span>
               </div>
             </div>
-
             <div class="checkout-passenger-seat__fields">
               <div class="checkout-field">
                 <label>First Name</label>
@@ -643,18 +650,29 @@
                 <input type="text" data-seat="${escapeHtml(seat)}" data-field="lastName" value="${escapeHtml(draft.lastName || '')}" placeholder="Last name">
               </div>
             </div>
-          </article>
-        `;
-      }).join('');
+          `;
+          row.querySelectorAll('input[data-seat][data-field]').forEach((input) => {
+            input.addEventListener('input', () => {
+              const s = input.getAttribute('data-seat');
+              const f = input.getAttribute('data-field');
+              if (!s || !f) return;
+              if (!state.seatDrafts[s]) state.seatDrafts[s] = { firstName: '', lastName: '' };
+              state.seatDrafts[s][f] = input.value;
+            });
+          });
+          elements.passengerManifest.appendChild(row);
+        }
 
-      elements.passengerManifest.querySelectorAll('[data-seat][data-field]').forEach((input) => {
-        input.addEventListener('input', () => {
-          const seat = input.getAttribute('data-seat');
-          const field = input.getAttribute('data-field');
-          if (!seat || !field) return;
-          if (!state.seatDrafts[seat]) state.seatDrafts[seat] = { firstName: '', lastName: '' };
-          state.seatDrafts[seat][field] = input.value;
-        });
+        // Always update the ordinal label (Passenger 1, 2…) without touching inputs
+        const lbl = row.querySelector('[data-pax-label]');
+        const sub = row.querySelector('[data-pax-sub]');
+        if (lbl) lbl.textContent = `Passenger ${index + 1}`;
+        if (sub) sub.textContent = index === 0 ? 'Primary passenger for this booking' : 'Additional passenger';
+
+        // Keep DOM order in sync with selectedSeats order
+        if (elements.passengerManifest.children[index] !== row) {
+          elements.passengerManifest.insertBefore(row, elements.passengerManifest.children[index] || null);
+        }
       });
     }
 
@@ -851,10 +869,7 @@
       try {
         const response = await fetch(`${apiBase()}/bus/${trip.busId}/lock-seat`, {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${(new URLSearchParams(window.location.hash.replace(/^#/, ''))).get('token') || localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || ''}`
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ seat: seatLabel, tripId: trip.tripId, lockId: state.lockId })
         });
         const data = await response.json().catch(() => ({}));
@@ -942,7 +957,7 @@
         return `
           <article class="bus-result-card dashboard-booking-result${selected ? ' is-selected' : ''}">
             <div class="bus-result-card__brand">
-              <img src="${escapeHtml(trip.operatorLogo || './ELITE TRANSPORT.png')}" alt="${escapeHtml(trip.operatorName)} logo" onerror="this.src='./ELITE TRANSPORT.png'">
+              <img src="${escapeHtml(trip.operatorLogo || '../ELITE TRANSPORT.png')}" alt="${escapeHtml(trip.operatorName)} logo" onerror="this.src='../ELITE TRANSPORT.png'">
               <span class="bus-result-card__brand-name">${escapeHtml(trip.operatorName)}</span>
             </div>
 

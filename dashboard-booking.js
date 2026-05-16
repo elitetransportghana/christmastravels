@@ -260,7 +260,7 @@
                 <div class="checkout-trip-card__meta">
                   <div class="checkout-brand-block">
                     <div class="checkout-brand-block__logo">
-                      <img src="../ELITE TRANSPORT.png" alt="Elite Transport logo">
+                      <img src="ELITE TRANSPORT.png" alt="Elite Transport logo">
                     </div>
                     <div class="checkout-brand-block__copy">
                       <strong data-db="operator-name">Elite Transport</strong>

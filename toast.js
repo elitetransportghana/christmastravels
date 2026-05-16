@@ -295,6 +295,7 @@ class Toast {
 }
 
 const toast = new Toast();
+window.toast = toast;
 
 function notify(type, message, duration) {
     if (toast && typeof toast[type] === 'function') {
@@ -310,6 +311,6 @@ function notifyRich(title, body, type = 'info', duration = 4800) {
         return;
     }
     if (window.toast && typeof window.toast[type] === 'function') {
-        window.toast[type](`${title} — ${body}`, duration);
+        window.toast[type](`${title} - ${body}`, duration);
     }
 }

@@ -162,7 +162,7 @@
 
   function buildTicketPageUrl(ticketPayload) {
     const ref = String(ticketPayload?.bookingId || '').trim();
-    return `../ticket.html${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
+    return `./ticket.html${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`;
   }
 
   function escapeAttr(value) {

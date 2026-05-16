@@ -1919,9 +1919,8 @@ body {
 body::before {
     background-image:
         linear-gradient(rgba(108, 125, 184, 0.09) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(108, 125, 184, 0.09) 1px, transparent 1px),
-        url('35e78f082e72a8431fa802650b516df5.webp');
-    background-size: 54px 54px, 54px 54px, cover;
+        linear-gradient(90deg, rgba(108, 125, 184, 0.09) 1px, transparent 1px);
+    background-size: 54px 54px, 54px 54px;
     background-position: center center, center center, center top;
     background-blend-mode: normal, normal, soft-light;
     opacity: 0.22;

@@ -9,12 +9,12 @@
   <link rel="stylesheet" href="find-bus.css?v=9" />
   <link rel="stylesheet" href="checkout.css?v=10" />
   <link rel="stylesheet" href="dashboard-booking.css" />
-  <link rel="stylesheet" href="app.css?v=7" />
+  <link rel="stylesheet" href="app.css?v=8" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
 </head>
 <body class="landing-page app-page">
 
-  <!-- ════ Navbar (mirrors checkout.html) ════ -->
+  <!-- ════ Navbar ════ -->
   <nav class="navbar landing-navbar">
     <div class="container landing-navbar__shell">
       <a href="../index.html" class="elite-brand elite-brand--mobile">
@@ -40,22 +40,19 @@
       </div>
     </div>
   </nav>
-  <!-- End Navbar -->
 
   <div class="app-shell">
 
-    <section class="app-shell__hero">
-      <div class="app-shell__hero-copy">
-        <span class="app-shell__eyebrow">Real admin workspace</span>
-        <h1>Tickets, passengers, and live trip control.</h1>
-        <p>Open the shared public ticket view from admin, keep saved PDFs attached to each booking, and manage the desk with cleaner spacing on every screen.</p>
+    <!-- ════ Top greeting bar ════ -->
+    <div class="app-top-bar">
+      <div class="app-top-bar__left">
+        <p class="app-top-bar__hello" id="overview-hello">Hello, Manager</p>
+        <p class="app-top-bar__sub">Here's what's happening with your fleet today.</p>
       </div>
-      <div class="app-shell__hero-badges">
-        <span class="app-shell__hero-chip"><i class="fa-solid fa-file-pdf"></i> Saved receipts</span>
-        <span class="app-shell__hero-chip"><i class="fa-solid fa-users"></i> Passenger tools</span>
-        <span class="app-shell__hero-chip"><i class="fa-solid fa-mobile-screen-button"></i> Mobile-ready desk</span>
+      <div class="app-top-bar__right">
+        <span class="app-top-bar__date" id="overview-date"></span>
       </div>
-    </section>
+    </div>
 
     <!-- ════ Tab strip ════ -->
     <nav class="app-tab-strip app-tabs-4" role="tablist" id="admin-tab-strip">
@@ -79,32 +76,36 @@
 
     <!-- ════ OVERVIEW panel ════ -->
     <div id="panel-overview" class="app-tab-panel is-active">
-      <!-- Greeting card -->
-      <div class="app-overview-greeting" id="overview-greeting">
-        <div>
-          <p class="app-overview-greeting__hello" id="overview-hello">Hello, Manager</p>
-          <p class="app-overview-greeting__sub">Here's what's happening with your fleet today.</p>
-        </div>
-        <div class="app-overview-greeting__date" id="overview-date"></div>
-      </div>
 
       <!-- KPI strip -->
       <div class="app-kpi-strip" style="margin-bottom:28px;">
-        <div class="app-kpi-card">
-          <div class="app-kpi-card__label">Active Trips</div>
-          <div class="app-kpi-card__value" id="ov-kpi-trips">—</div>
+        <div class="app-kpi-card app-kpi-card--teal">
+          <div class="app-kpi-card__icon"><i class="fa-solid fa-bus"></i></div>
+          <div class="app-kpi-card__body">
+            <div class="app-kpi-card__label">Active Trips</div>
+            <div class="app-kpi-card__value" id="ov-kpi-trips">—</div>
+          </div>
         </div>
-        <div class="app-kpi-card">
-          <div class="app-kpi-card__label">Seats Booked</div>
-          <div class="app-kpi-card__value" id="ov-kpi-booked">—</div>
+        <div class="app-kpi-card app-kpi-card--green">
+          <div class="app-kpi-card__icon"><i class="fa-solid fa-chair"></i></div>
+          <div class="app-kpi-card__body">
+            <div class="app-kpi-card__label">Seats Booked</div>
+            <div class="app-kpi-card__value" id="ov-kpi-booked">—</div>
+          </div>
         </div>
-        <div class="app-kpi-card">
-          <div class="app-kpi-card__label">Revenue Today</div>
-          <div class="app-kpi-card__value" id="ov-kpi-revenue">—</div>
+        <div class="app-kpi-card app-kpi-card--mint">
+          <div class="app-kpi-card__icon"><i class="fa-solid fa-coins"></i></div>
+          <div class="app-kpi-card__body">
+            <div class="app-kpi-card__label">Revenue Today</div>
+            <div class="app-kpi-card__value" id="ov-kpi-revenue">—</div>
+          </div>
         </div>
-        <div class="app-kpi-card">
-          <div class="app-kpi-card__label">Avg Occupancy</div>
-          <div class="app-kpi-card__value" id="ov-kpi-occupancy">—</div>
+        <div class="app-kpi-card app-kpi-card--amber">
+          <div class="app-kpi-card__icon"><i class="fa-solid fa-gauge-high"></i></div>
+          <div class="app-kpi-card__body">
+            <div class="app-kpi-card__label">Avg Occupancy</div>
+            <div class="app-kpi-card__value" id="ov-kpi-occupancy">—</div>
+          </div>
         </div>
       </div>
 
@@ -129,7 +130,6 @@
         </div>
       </div>
       <div id="admin-booking-desk">
-        <!-- DashboardBookingDesk mounts here -->
         <div class="app-empty"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading booking desk…</p></div>
       </div>
     </div>
@@ -185,7 +185,7 @@
         <div class="app-filter-field app-filter-field--actions">
           <span>Apply</span>
           <button class="app-btn app-btn--primary app-btn--sm" id="pax-apply-filter">
-            <i class="fa-solid fa-filter"></i> Apply filters
+            <i class="fa-solid fa-filter"></i> Apply
           </button>
         </div>
       </div>
@@ -215,74 +215,82 @@
       </div>
 
       <!-- KPI strip -->
-      <div class="app-kpi-strip" id="trips-kpi-strip" style="display:none;">
-        <div class="app-kpi-card">
-          <div class="app-kpi-card__label">Active Trips</div>
-          <div class="app-kpi-card__value" id="kpi-active-trips">—</div>
+      <div class="app-kpi-strip" id="trips-kpi-strip" style="display:none;margin-bottom:24px;">
+        <div class="app-kpi-card app-kpi-card--teal">
+          <div class="app-kpi-card__icon"><i class="fa-solid fa-bus"></i></div>
+          <div class="app-kpi-card__body">
+            <div class="app-kpi-card__label">Active Trips</div>
+            <div class="app-kpi-card__value" id="kpi-active-trips">—</div>
+          </div>
         </div>
-        <div class="app-kpi-card">
-          <div class="app-kpi-card__label">Total Booked</div>
-          <div class="app-kpi-card__value" id="kpi-total-booked">—</div>
+        <div class="app-kpi-card app-kpi-card--green">
+          <div class="app-kpi-card__icon"><i class="fa-solid fa-ticket"></i></div>
+          <div class="app-kpi-card__body">
+            <div class="app-kpi-card__label">Total Booked</div>
+            <div class="app-kpi-card__value" id="kpi-total-booked">—</div>
+          </div>
         </div>
-        <div class="app-kpi-card">
-          <div class="app-kpi-card__label">Revenue Today</div>
-          <div class="app-kpi-card__value" id="kpi-revenue">—</div>
+        <div class="app-kpi-card app-kpi-card--mint">
+          <div class="app-kpi-card__icon"><i class="fa-solid fa-coins"></i></div>
+          <div class="app-kpi-card__body">
+            <div class="app-kpi-card__label">Revenue Today</div>
+            <div class="app-kpi-card__value" id="kpi-revenue">—</div>
+          </div>
         </div>
-        <div class="app-kpi-card">
-          <div class="app-kpi-card__label">Avg Occupancy</div>
-          <div class="app-kpi-card__value" id="kpi-occupancy">—</div>
+        <div class="app-kpi-card app-kpi-card--amber">
+          <div class="app-kpi-card__icon"><i class="fa-solid fa-gauge-high"></i></div>
+          <div class="app-kpi-card__body">
+            <div class="app-kpi-card__label">Avg Occupancy</div>
+            <div class="app-kpi-card__value" id="kpi-occupancy">—</div>
+          </div>
         </div>
       </div>
 
-      <div class="app-trips-layout">
-        <!-- Filter sidebar reusing findbus-filters style -->
-        <aside>
-          <div class="findbus-filters">
-            <div class="findbus-filters__head">
-              <span class="findbus-filters__title">Filter trips</span>
-            </div>
-            <div class="findbus-filters__block">
-              <label class="findbus-filters__label">Route</label>
-              <select id="trip-route-filter" class="app-form-field select" style="width:100%;min-height:44px;border:1.5px solid #d0e8df;border-radius:12px;padding:0 14px;font-family:inherit;font-size:13px;background:#fff;outline:none;">
-                <option value="">All routes</option>
-              </select>
-            </div>
-            <div class="findbus-filters__block">
-              <label class="findbus-filters__label">Status</label>
-              <div class="findbus-filters__checks">
-                <label class="findbus-filters__check"><input type="checkbox" name="trip-status" value="scheduled" /><span>Scheduled</span></label>
-                <label class="findbus-filters__check"><input type="checkbox" name="trip-status" value="active" checked /><span>Active</span></label>
-                <label class="findbus-filters__check"><input type="checkbox" name="trip-status" value="completed" /><span>Completed</span></label>
-                <label class="findbus-filters__check"><input type="checkbox" name="trip-status" value="cancelled" /><span>Cancelled</span></label>
-              </div>
-            </div>
-            <div class="findbus-filters__block">
-              <label class="findbus-filters__label">Operator</label>
-              <select id="trip-operator-filter" style="width:100%;min-height:44px;border:1.5px solid #d0e8df;border-radius:12px;padding:0 14px;font-family:inherit;font-size:13px;background:#fff;outline:none;">
-                <option value="">All operators</option>
-              </select>
-            </div>
-            <button class="app-btn app-btn--primary" id="trip-apply-filter" style="width:100%;margin-top:8px;">
-              <i class="fa-solid fa-filter"></i> Apply
-            </button>
+      <!-- Horizontal trip filters -->
+      <div class="app-filter-strip app-filter-strip--trips" style="margin-bottom:24px;">
+        <label class="app-filter-field">
+          <span>Route</span>
+          <select id="trip-route-filter">
+            <option value="">All routes</option>
+          </select>
+        </label>
+        <label class="app-filter-field">
+          <span>Operator</span>
+          <select id="trip-operator-filter">
+            <option value="">All operators</option>
+          </select>
+        </label>
+        <div class="app-filter-field">
+          <span>Status</span>
+          <div class="app-trip-status-checks">
+            <label><input type="checkbox" name="trip-status" value="scheduled" /> Scheduled</label>
+            <label><input type="checkbox" name="trip-status" value="active" checked /> Active</label>
+            <label><input type="checkbox" name="trip-status" value="completed" /> Completed</label>
+            <label><input type="checkbox" name="trip-status" value="cancelled" /> Cancelled</label>
           </div>
-        </aside>
-        <!-- Trip cards -->
-        <div>
-          <div id="trips-active-section">
-            <h3 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(17,34,17,.45);margin:0 0 12px;">Active</h3>
-            <div id="trips-active-list" class="app-trip-list">
-              <div class="app-empty"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading trips…</p></div>
-            </div>
+        </div>
+        <div class="app-filter-field app-filter-field--actions">
+          <span>Apply</span>
+          <button class="app-btn app-btn--primary app-btn--sm" id="trip-apply-filter" style="width:100%;">
+            <i class="fa-solid fa-filter"></i> Apply
+          </button>
+        </div>
+      </div>
+
+      <!-- Trip cards -->
+      <div>
+        <div id="trips-active-section">
+          <h3 class="app-trips-section-label">Active</h3>
+          <div id="trips-active-list" class="app-trip-list">
+            <div class="app-empty"><i class="fa-solid fa-spinner fa-spin"></i><p>Loading trips…</p></div>
           </div>
-          <div id="trips-recent-section" style="margin-top:28px;">
-            <h3 style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(17,34,17,.45);margin:0 0 12px;">Recent</h3>
-            <div id="trips-recent-list" class="app-trip-list"></div>
-          </div>
+        </div>
+        <div id="trips-recent-section" style="margin-top:32px;">
+          <h3 class="app-trips-section-label">Recent</h3>
+          <div id="trips-recent-list" class="app-trip-list"></div>
         </div>
       </div>
     </div>
-
 
   </div><!-- /.app-shell -->
 
@@ -331,11 +339,11 @@
   </div>
 
   <!-- Toast -->
-  <div id="app-toast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:opacity .2s,transform .2s;background:#112211;color:#fff;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;pointer-events:none;max-width:340px;text-align:center;"></div>
+  <div id="app-toast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:opacity .2s,transform .2s;background:#0d5d4a;color:#fff;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:200;pointer-events:none;max-width:340px;text-align:center;"></div>
 
   <!-- Confirm Modal -->
-  <div id="adm-confirm-modal" hidden style="position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px);">
-    <div style="background:#fff;border-radius:18px;padding:28px 28px 22px;max-width:420px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.3);border:1px solid #e4eae7;">
+  <div id="adm-confirm-modal" hidden style="position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);">
+    <div style="background:#fff;border-radius:18px;padding:28px 28px 22px;max-width:420px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.22);border:1px solid #e4eae7;">
       <p id="adm-confirm-msg" style="font-size:15px;font-weight:600;color:#0f1f0f;margin:0 0 24px;line-height:1.5;"></p>
       <div style="display:flex;gap:10px;justify-content:flex-end;">
         <button id="adm-confirm-cancel" style="padding:9px 20px;border-radius:9px;border:1.5px solid #e4eae7;background:#fff;color:#0f1f0f;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">Cancel</button>
@@ -345,13 +353,13 @@
   </div>
 
   <!-- Prompt Modal -->
-  <div id="adm-prompt-modal" hidden style="position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px);">
-    <div style="background:#fff;border-radius:18px;padding:28px 28px 22px;max-width:480px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.3);border:1px solid #e4eae7;">
+  <div id="adm-prompt-modal" hidden style="position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);">
+    <div style="background:#fff;border-radius:18px;padding:28px 28px 22px;max-width:480px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.22);border:1px solid #e4eae7;">
       <p id="adm-prompt-msg" style="font-size:14px;font-weight:600;color:#0f1f0f;margin:0 0 14px;line-height:1.5;"></p>
-      <textarea id="adm-prompt-input" rows="3" style="width:100%;box-sizing:border-box;border:1.5px solid #e4eae7;border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13px;color:#0f1f0f;resize:vertical;outline:none;margin-bottom:16px;" onfocus="this.style.borderColor='#1a7a4a'" onblur="this.style.borderColor='#e4eae7'"></textarea>
+      <textarea id="adm-prompt-input" rows="3" style="width:100%;box-sizing:border-box;border:1.5px solid #e4eae7;border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13px;color:#0f1f0f;resize:vertical;outline:none;margin-bottom:16px;" onfocus="this.style.borderColor='#4dbfa0'" onblur="this.style.borderColor='#e4eae7'"></textarea>
       <div style="display:flex;gap:10px;justify-content:flex-end;">
         <button id="adm-prompt-cancel" style="padding:9px 20px;border-radius:9px;border:1.5px solid #e4eae7;background:#fff;color:#0f1f0f;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">Cancel</button>
-        <button id="adm-prompt-ok" style="padding:9px 20px;border-radius:9px;border:none;background:#1a7a4a;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">Send</button>
+        <button id="adm-prompt-ok" style="padding:9px 20px;border-radius:9px;border:none;background:#0d9b7a;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;">Send</button>
       </div>
     </div>
   </div>

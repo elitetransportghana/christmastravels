@@ -15,8 +15,13 @@
     'Campus',
     'Upper East',
     'Upper West',
-    'Tumu',
-    'St John Bosco'
+    'Kintampo',
+    'Banda District',
+    'Wenchi Municipal',
+    'Nkoranza North District',
+    'Techiman Municipal',
+    'St. John Bosco',
+    'Tumu'
   ];
   const SEAT_ROWS = [
     [0, 1, 0, 0, 0],

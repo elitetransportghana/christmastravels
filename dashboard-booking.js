@@ -964,7 +964,7 @@
         return `
           <article class="bus-result-card dashboard-booking-result${selected ? ' is-selected' : ''}">
             <div class="bus-result-card__brand">
-              <img src="${escapeHtml(trip.operatorLogo || 'ELITE TRANSPORT.png')}" alt="${escapeHtml(trip.operatorName)} logo" onerror="this.src='../ELITE TRANSPORT.png'">
+              <img src="${escapeHtml(trip.operatorLogo || 'ELITE TRANSPORT.png')}" alt="${escapeHtml(trip.operatorName)} logo" onerror="this.src='ELITE TRANSPORT.png'">
               <span class="bus-result-card__brand-name">${escapeHtml(trip.operatorName)}</span>
             </div>
 

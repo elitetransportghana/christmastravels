@@ -14,7 +14,9 @@
     'Bolgatanga',
     'Campus',
     'Upper East',
-    'Upper West'
+    'Upper West',
+    'Tumu',
+    'St John Bosco'
   ];
   const SEAT_ROWS = [
     [0, 1, 0, 0, 0],

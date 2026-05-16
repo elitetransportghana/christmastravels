@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Ticket | Elite Transport</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
-  <link rel="stylesheet" href="../style.css?v=13">
-  <link rel="stylesheet" href="../ticket.css?v=3">
+  <link rel="stylesheet" href="./style.css?v=13">
+  <link rel="stylesheet" href="./ticket.css?v=3">
   <link rel="stylesheet" href="ticket-admin.css?v=1">
   <script>
     window.ELITE_TICKET_CONFIG = {
-      assetBase: '../',
-      searchPage: '../search.html',
-      trackPage: '../track.html',
+      assetBase: './',
+      searchPage: './search.html',
+      trackPage: './track.html',
       resolveTicketPayload: async function ({ ref }) {
         const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || '';
         const normalizedRef = String(ref || '').trim().replace(/^ELITE-/i, '');
@@ -36,7 +36,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="../toast.js"></script>
+  <script src="./toast.js"></script>
 </head>
 <body class="ticket-page admin-ticket-page">
   <header class="admin-ticket-topbar">
@@ -69,7 +69,7 @@
         <nav class="ticket-breadcrumbs" aria-label="Breadcrumb">
           <a href="./app.html?tab=passengers">Admin</a>
           <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
-          <a href="../search.html" id="ticketBackToSearch">Search</a>
+          <a href="./search.html" id="ticketBackToSearch">Search</a>
           <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
           <span id="ticketBreadcrumbRoute">Ticket</span>
         </nav>
@@ -103,7 +103,7 @@
             <p>Open a passenger ticket from the admin desk first so the shared ticket renderer has a booking to load.</p>
             <div class="ticket-empty-card__actions">
               <a href="./app.html?tab=passengers" class="ticket-empty-card__button">Back to passengers</a>
-              <a href="../track.html" class="ticket-empty-card__link">Track booking</a>
+              <a href="./track.html" class="ticket-empty-card__link">Track booking</a>
             </div>
           </article>
         </section>
@@ -142,7 +142,7 @@
     </section>
   </main>
 
-  <script src="../ticket.js?v=3"></script>
+  <script src="./ticket.js?v=3"></script>
   <script src="ticket-admin.js?v=1"></script>
 </body>
 </html>

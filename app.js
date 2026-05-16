@@ -82,17 +82,24 @@
       const noBtn  = document.getElementById('adm-confirm-cancel');
       if (!modal) { resolve(window.confirm(msg)); return; }
       msgEl.textContent = msg;
+      modal.hidden = false;
       modal.style.display = 'flex';
       function done(val) {
+        modal.hidden = true;
         modal.style.display = 'none';
         okBtn.removeEventListener('click', yes);
         noBtn.removeEventListener('click', no);
+        modal.removeEventListener('click', onBackdrop);
         resolve(val);
       }
       function yes() { done(true); }
       function no()  { done(false); }
+      function onBackdrop(e) {
+        if (e.target === modal) done(false);
+      }
       okBtn.addEventListener('click', yes);
       noBtn.addEventListener('click', no);
+      modal.addEventListener('click', onBackdrop);
     });
   }
 
@@ -107,21 +114,28 @@
       msgEl.textContent   = msg;
       input.placeholder   = placeholder;
       input.value         = '';
+      modal.hidden = false;
       modal.style.display = 'flex';
       setTimeout(() => input.focus(), 60);
       function done(val) {
+        modal.hidden = true;
         modal.style.display = 'none';
         okBtn.removeEventListener('click', yes);
         noBtn.removeEventListener('click', no);
         input.removeEventListener('keydown', onKey);
+        modal.removeEventListener('click', onBackdrop);
         resolve(val);
       }
       function yes()  { done(input.value.trim() || null); }
       function no()   { done(null); }
       function onKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); yes(); } if (e.key === 'Escape') no(); }
+      function onBackdrop(e) {
+        if (e.target === modal) done(null);
+      }
       okBtn.addEventListener('click', yes);
       noBtn.addEventListener('click', no);
       input.addEventListener('keydown', onKey);
+      modal.addEventListener('click', onBackdrop);
     });
   }
 
@@ -813,6 +827,7 @@
     const message = await adminPrompt('Message to send to all passengers on this trip:', 'Type your message…');
     if (!message) return;
     try {
+      toast('Sending notification...');
       await api('/admin/trips/' + tripId + '/notify', {
         method: 'POST',
         body: JSON.stringify({ message })
@@ -833,10 +848,12 @@
   }
 
   async function sendSMS(bookingIds, message) {
+    if (!bookingIds || bookingIds.size === 0) { toast('Select at least one passenger first.', false); return; }
     if (!message || !message.trim()) { toast('Please enter a message.', false); return; }
     const btn = document.getElementById('compose-send-btn');
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending…'; }
     try {
+      toast('Sending SMS...');
       const res = await api('/admin/sms/send', {
         method: 'POST',
         body: JSON.stringify({ bookingIds: Array.from(bookingIds), message: message.trim() })
@@ -904,12 +921,22 @@
       switchTab('passengers');
     },
     async smsSingle(bookingId, phone, name) {
+      if (!phone) {
+        toast('This passenger does not have a phone number.', false);
+        return;
+      }
       const msg = await adminPrompt(`SMS to ${name} (${phone}):`, 'Type your message…');
       if (!msg) return;
-      api('/admin/sms/send', {
-        method: 'POST',
-        body: JSON.stringify({ phone, name, message: msg.trim() })
-      }).then(() => toast(`Sent to ${phone}.`)).catch(e => toast(e.message, false));
+      try {
+        toast('Sending SMS...');
+        await api('/admin/sms/send', {
+          method: 'POST',
+          body: JSON.stringify({ phone, name, message: msg.trim() })
+        });
+        toast(`SMS sent to ${phone}.`);
+      } catch (e) {
+        toast(e.message, false);
+      }
     },
     viewReceipt(bookingId) {
       const booking = (S.passengers.list || []).find((item) => String(item.id) === String(bookingId));
